@@ -3,4 +3,10 @@ project(CSCClub_Tetris)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(CSCClub_Tetris main.cpp)
+find_package(SDL2 REQUIRED)
+
+include_directories(${SDL2_INCLUDE-DIRS})
+
+add_executable(CSCClub_Tetris main.cpp Shape.cpp Shape.h Board.cpp Board.h Display.cpp Display.h Game.cpp Game.h)
+
+target_link_libraries(${PROJECT_NAME} ${SDL2_LIBRARIES})
