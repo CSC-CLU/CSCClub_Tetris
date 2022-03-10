@@ -19,9 +19,9 @@ public:
     void initSystems();
 
 private:
-    SDL_Window* _window;
-    int _screenWidth;
-    int _screenHeight;
+    SDL_Window* window;
+    int screenWidth;
+    int screenHeight;
 };
 
 

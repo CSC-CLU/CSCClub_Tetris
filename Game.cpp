@@ -6,11 +6,8 @@
 #include <SDL2/SDL.h>
 
 Game::Game()
-{
-    _window = nullptr;
-    _screenWidth = 1080;
-    _screenHeight = 960;
-}
+: window(nullptr), screenWidth(960), screenHeight(1080)
+{}
 
 Game::~Game()
 {
@@ -27,5 +24,11 @@ void Game::initSystems()
     // ／(•ㅅ•)＼ Initialize SDL
     SDL_Init(SDL_INIT_EVERYTHING);
 
-    _window = SDL_CreateWindow("Tetris", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, _screenWidth, _screenHeight, SDL_WINDOW_OPENGL);
+    window = SDL_CreateWindow(
+            "Tetris",
+            SDL_WINDOWPOS_CENTERED,
+            SDL_WINDOWPOS_CENTERED,
+            screenWidth,
+            screenHeight,
+            SDL_WINDOW_OPENGL);
 }
