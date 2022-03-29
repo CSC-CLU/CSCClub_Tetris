@@ -29,6 +29,11 @@ private:
     void initSystems();
     void processInput();
     void gameLoop();
+    // FIXME perhaps this sort of logic should go into Display? Would require a rather deep refactor though.
+    // render methods
+    void drawSquare(int x,int y);
+    void drawSquare(int x,int y,int,int,int);
+    // display methods
     void prepareScene();
     void prepareScene(int r, int g, int b);
     void presentScene();

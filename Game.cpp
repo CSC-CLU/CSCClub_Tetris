@@ -73,13 +73,25 @@ void Game::prepareScene(int r, int g, int b)
     {
         SDL_RenderDrawLine(this->renderer, 0, i, screenWidth, i);
     }
-    SDL_Rect* rect;
-    rect = new SDL_Rect();
-    rect->x = 0;
-    rect->y = 0;
-    rect->w = screenWidth / 16;
-    rect->h = screenHeight / 16;
-    SDL_RenderDrawRect(this->renderer, rect);
+    drawSquare(3,3,255,255,255);
+    drawSquare(3,4);
+    drawSquare(3,5);
+    drawSquare(2,4,255,0,0);
+}
+
+// x and y correspond to grid tiles.
+void Game::drawSquare(int x, int y) {
+    SDL_Rect rect;
+    rect.w = screenWidth / 16;
+    rect.h = screenHeight / 16;
+    rect.x = rect.w * x;
+    rect.y = rect.h * y;
+    SDL_RenderDrawRect(this->renderer, &rect);
+}
+void Game::drawSquare(int x, int y, int r, int g, int b) {
+    // fixme this permanently sets the color in question.
+    SDL_SetRenderDrawColor(this->renderer, r, g, b, 0);
+    drawSquare(x,y);
 }
 
 void Game::presentScene()
