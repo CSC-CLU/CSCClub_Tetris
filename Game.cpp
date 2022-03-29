@@ -63,6 +63,23 @@ void Game::prepareScene(int r, int g, int b)
 {
     SDL_SetRenderDrawColor(this->renderer, r, g, b, 255);
     SDL_RenderClear(this->renderer);
+
+    SDL_SetRenderDrawColor(this->renderer, 0, 0, 0, 0);
+    for(int i = 0; i < screenWidth; i += (screenWidth / 16))
+    {
+        SDL_RenderDrawLine(this->renderer, i, 0, i, screenHeight);
+    }
+    for(int i = 0; i < screenHeight; i += (screenHeight / 16))
+    {
+        SDL_RenderDrawLine(this->renderer, 0, i, screenWidth, i);
+    }
+    SDL_Rect* rect;
+    rect = new SDL_Rect();
+    rect->x = 0;
+    rect->y = 0;
+    rect->w = screenWidth / 16;
+    rect->h = screenHeight / 16;
+    SDL_RenderDrawRect(this->renderer, rect);
 }
 
 void Game::presentScene()
