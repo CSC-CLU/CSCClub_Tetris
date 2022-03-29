@@ -15,8 +15,11 @@ void fatalError(std::string errorString)
     SDL_Quit();
 }
 
-Game::Game()
-: window(nullptr), screenWidth(960), screenHeight(1080), gameState(GameState::PLAY)
+Game::Game(int screenWidth, int screenHeight)
+: window(nullptr)
+, screenWidth(screenWidth)
+, screenHeight(screenHeight)
+, gameState(GameState::PLAY)
 {}
 
 Game::~Game()

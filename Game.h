@@ -15,7 +15,8 @@ enum class GameState
 class Game
 {
 public:
-    Game();
+    Game() : Game(960,1080){};
+    Game(int screenWidth, int screenHeight);
     ~Game();
 
     void run();
