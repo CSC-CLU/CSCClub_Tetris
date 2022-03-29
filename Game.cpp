@@ -6,6 +6,15 @@
 #include <SDL2/SDL.h>
 #include <iostream>
 
+void fatalError(std::string errorString)
+{
+    std::cout << errorString << std::endl;
+    std::cout << "Enter any key to quit...";
+    int tmp;
+    std::cin >> tmp;
+    SDL_Quit();
+}
+
 Game::Game()
 : window(nullptr), screenWidth(960), screenHeight(1080), gameState(GameState::PLAY)
 {}
@@ -23,6 +32,7 @@ void Game::run()
 
 void Game::initSystems()
 {
+    int rendererFlags = SDL_RENDERER_ACCELERATED;
     // ／(•ㅅ•)＼ Initialize SDL
     SDL_Init(SDL_INIT_EVERYTHING);
 
@@ -33,6 +43,25 @@ void Game::initSystems()
             screenWidth,
             screenHeight,
             SDL_WINDOW_OPENGL);
+
+    if(window == nullptr)
+    {
+        fatalError("SDL Window could not be created");
+    }
+
+    this->renderer = SDL_CreateRenderer(window, -1, rendererFlags);
+
+}
+
+void Game::prepareScene()
+{
+    SDL_SetRenderDrawColor(this->renderer, 96, 128, 255, 255);
+    SDL_RenderClear(this->renderer);
+}
+
+void Game::presentScene()
+{
+    SDL_RenderPresent(this->renderer);
 }
 
 void Game::processInput()
@@ -59,6 +88,9 @@ void Game::gameLoop()
 {
     while (gameState != GameState::EXIT)
     {
+        prepareScene();
         processInput();
+        presentScene();
+        SDL_Delay(16);
     }
 }

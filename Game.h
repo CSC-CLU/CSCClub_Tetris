@@ -25,9 +25,12 @@ private:
     int screenWidth;
     int screenHeight;
     GameState gameState;
+    SDL_Renderer* renderer;
     void initSystems();
     void processInput();
     void gameLoop();
+    void prepareScene();
+    void presentScene();
 };
 
 
