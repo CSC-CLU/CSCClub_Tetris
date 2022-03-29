@@ -7,6 +7,10 @@
 #include <SDL2/SDL.h>
 #include <GL/gl.h>
 
+enum class GameState
+{
+    PLAY, EXIT
+};
 
 class Game
 {
@@ -16,12 +20,14 @@ public:
 
     void run();
 
-    void initSystems();
-
 private:
     SDL_Window* window;
     int screenWidth;
     int screenHeight;
+    GameState gameState;
+    void initSystems();
+    void processInput();
+    void gameLoop();
 };
 
 
