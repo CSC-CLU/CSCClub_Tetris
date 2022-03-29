@@ -58,8 +58,7 @@ void Game::initSystems()
 
 void Game::prepareScene()
 {
-    SDL_SetRenderDrawColor(this->renderer, 0, 0, 255, 255);
-    SDL_RenderClear(this->renderer);
+    prepareScene(256/3,256/3,256/3);
 }
 
 void Game::prepareScene(int r, int g, int b)
@@ -112,7 +111,7 @@ void Game::processInput()
                 gameState = GameState::EXIT;
                 break;
             case SDL_MOUSEMOTION:
-                prepareScene(evnt.motion.x * 255 / 960, evnt.motion.y * 255 / 1080, 255);
+                prepareScene(/*evnt.motion.x * 255 / screenWidth, evnt.motion.y * 255 / screenHeight, 255*/);
                 std::cout << evnt.motion.x << " " << evnt.motion.y << std::endl;
                 break;
             case SDL_KEYDOWN:
