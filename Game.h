@@ -7,6 +7,8 @@
 #include <SDL2/SDL.h>
 #include <GL/gl.h>
 
+#include<cmath>
+
 enum class GameState
 {
     PLAY, EXIT
@@ -15,7 +17,8 @@ enum class GameState
 class Game
 {
 public:
-    Game();
+    Game() : Game(960,1080){};
+    Game(int screenWidth, int screenHeight);
     ~Game();
 
     void run();
@@ -26,6 +29,11 @@ private:
     int screenHeight;
     GameState gameState;
     SDL_Renderer* renderer;
+
+    const int ROWS=20,COLS=10;
+    int tileLength() const
+    { return (int)fmin(screenHeight/ROWS,screenWidth/COLS); }
+
     void initSystems();
     void processInput();
     void gameLoop();

@@ -15,8 +15,11 @@ void fatalError(std::string errorString)
     SDL_Quit();
 }
 
-Game::Game()
-: window(nullptr), screenWidth(960), screenHeight(1080), gameState(GameState::PLAY)
+Game::Game(int screenWidth, int screenHeight)
+: window(nullptr)
+, screenWidth(screenWidth)
+, screenHeight(screenHeight)
+, gameState(GameState::PLAY)
 {}
 
 Game::~Game()
@@ -55,23 +58,22 @@ void Game::initSystems()
 
 void Game::prepareScene()
 {
-    SDL_SetRenderDrawColor(this->renderer, 0, 0, 255, 255);
-    SDL_RenderClear(this->renderer);
+    prepareScene(256/3,256/3,256/3);
 }
 
 void Game::prepareScene(int r, int g, int b)
 {
     SDL_SetRenderDrawColor(this->renderer, r, g, b, 255);
     SDL_RenderClear(this->renderer);
-
+    // render grid
     SDL_SetRenderDrawColor(this->renderer, 0, 0, 0, 0);
-    for(int i = 0; i < screenWidth; i += (screenWidth / 16))
+    for(int i = 0; i <= COLS*tileLength(); i += tileLength())
     {
-        SDL_RenderDrawLine(this->renderer, i, 0, i, screenHeight);
+        SDL_RenderDrawLine(this->renderer, i, 0, i, tileLength()*ROWS);
     }
-    for(int i = 0; i < screenHeight; i += (screenHeight / 16))
+    for(int i = 0; i <= ROWS*tileLength(); i += tileLength())
     {
-        SDL_RenderDrawLine(this->renderer, 0, i, screenWidth, i);
+        SDL_RenderDrawLine(this->renderer, 0, i, tileLength()*COLS, i);
     }
     drawSquare(3,3,255,255,255);
     drawSquare(3,4);
@@ -82,8 +84,7 @@ void Game::prepareScene(int r, int g, int b)
 // x and y correspond to grid tiles.
 void Game::drawSquare(int x, int y) {
     SDL_Rect rect;
-    rect.w = screenWidth / 16;
-    rect.h = screenHeight / 16;
+    rect.w = rect.h = tileLength();
     rect.x = rect.w * x;
     rect.y = rect.h * y;
     SDL_RenderDrawRect(this->renderer, &rect);
@@ -110,7 +111,7 @@ void Game::processInput()
                 gameState = GameState::EXIT;
                 break;
             case SDL_MOUSEMOTION:
-                prepareScene(evnt.motion.x * 255 / 960, evnt.motion.y * 255 / 1080, 255);
+                prepareScene(/*evnt.motion.x * 255 / screenWidth, evnt.motion.y * 255 / screenHeight, 255*/);
                 std::cout << evnt.motion.x << " " << evnt.motion.y << std::endl;
                 break;
             case SDL_KEYDOWN:
