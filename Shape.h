@@ -5,6 +5,8 @@
 #ifndef CSCCLUB_TETRIS_SHAPE_H
 #define CSCCLUB_TETRIS_SHAPE_H
 
+#include "Utilities.h"
+
 // ／(•ㅅ•)＼ Will contain:
 //           - 2D array of (x,y) coordinates for each shape
 //           - Designation for tile patterns
@@ -12,7 +14,29 @@
 //           - int for rotation state
 class Shape
 {
+public:
+    class Square
+    {
+    public:
+        int x;
+        int y;
+        int h;
+        int w;
+        Utilities::RGB rgb;
 
+        Square();
+        Square(int x, int y, int r, int g, int b);
+        Square(int x, int y, Utilities::RGB* rgb);
+    };
+
+    Square** shape;
+
+    Shape();
+    bool rotateR();
+    bool rotateL();
+    bool moveDown();
+    bool moveR();
+    bool moveL();
 };
 
 
