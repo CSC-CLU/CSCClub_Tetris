@@ -75,10 +75,17 @@ void Game::prepareScene(int r, int g, int b)
     {
         SDL_RenderDrawLine(this->renderer, gridLeft(), i, gridRight(), i);
     }
-    drawSquare(3,3,255,255,255);
-    drawSquare(3,4);
-    drawSquare(3,5);
-    drawSquare(2,4,255,0,0);
+    drawSquare(3,3,0,255,255);
+    drawSquare(3,4,0,255,255);
+    drawSquare(3,5,0,255,255);
+    drawSquare(2,4,0,255,255);
+    // this generates the prototype preview area.
+    for(int i=0; i < L_COLS-2; i++) {
+        for(int j=0; j < L_COLS-2; j++) {
+            int c = 255/2;
+            drawSquare(i-L_COLS+1, j+1,c,c,c);
+        }
+    }
 }
 
 // x and y correspond to grid tiles.
