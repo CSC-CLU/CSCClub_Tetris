@@ -8,86 +8,92 @@
 Shape::Shape()
 {
     std::default_random_engine random;
-    std::uniform_int_distribution<int> distribution(0,6);
-    int type = distribution(random);
-
+    std::uniform_int_distribution<int> distribution(SQUARE,T);
+    auto type = static_cast<Piece>(distribution(random));
     switch(type)
     {
         // ／(^ㅅ^)＼ Square
-        case 0:
+        case SQUARE:
         {
-            auto *color = new Utilities::RGB(255, 255, 0);
-            shape = new Square *[4];
-            shape[0] = new Square(4, 0, color);
-            shape[1] = new Square(5, 0, color);
-            shape[2] = new Square(4, 1, color);
-            shape[3] = new Square(5, 1, color);
+            RGB color(255, 255, 0);
+            shape = new Square[4] {
+                Square(4, 0, color),
+                Square(5, 0, color),
+                Square(4, 1, color),
+                Square(5, 1, color),
+            };
             break;
         }
         // ／(^ㅅ^)＼ Line
-        case 1:
+        case LINE:
         {
-            auto *color = new Utilities::RGB(255, 255, 255);
-            shape = new Square *[4];
-            shape[0] = new Square(3, 0, color);
-            shape[1] = new Square(4, 0, color);
-            shape[2] = new Square(5, 0, color);
-            shape[3] = new Square(6, 0, color);
+            RGB color(255, 255, 255);
+            shape = new Square[4] {
+                Square(3,0,color),
+                Square(4,0,color),
+                Square(5,0,color),
+                Square(6,0,color),
+            };
             break;
         }
         // ／(^ㅅ^)＼ J
-        case 2:
+        case J:
         {
-            auto *color = new Utilities::RGB(255, 255, 0);
-            shape = new Square*[4];
-            shape[0] = new Square(4, 0, color);
-            shape[1] = new Square(5, 0, color);
-            shape[2] = new Square(6, 0, color);
-            shape[3] = new Square(6, 1, color);
+            RGB color(255, 255, 0);
+            shape = new Square[4] {
+                Square(4, 0, color),
+                Square(5, 0, color),
+                Square(6, 0, color),
+                Square(6, 1, color)
+            };
             break;
         }
         // ／(^ㅅ^)＼ L
-        case 3:
+        case L:
         {
-            auto *color = new Utilities::RGB(255, 255, 0);
-            shape = new Square*[4];
-            shape[0] = new Square(4, 0, color);
-            shape[1] = new Square(5, 0, color);
-            shape[2] = new Square(6, 0, color);
-            shape[3] = new Square(4, 1, color);
+            RGB color(255, 255, 0);
+            shape = new Square[4] {
+                Square(4, 0, color),
+                Square(5, 0, color),
+                Square(6, 0, color),
+                Square(4, 1, color),
+            };
             break;
         }
         // ／(^ㅅ^)＼ Z
-        case 4:
+        case Z:
         {
-            auto *color = new Utilities::RGB(255, 255, 0);
-            shape = new Square*[4];
-            shape[0] = new Square(4, 0, color);
-            shape[1] = new Square(5, 0, color);
-            shape[2] = new Square(5, 1, color);
-            shape[3] = new Square(6, 1, color);
+            RGB color(255, 255, 0);
+            shape = new Square[4] {
+                Square(4, 0, color),
+                Square(5, 0, color),
+                Square(5, 1, color),
+                Square(6, 1, color),
+            };
             break;
         }
         // ／(^ㅅ^)＼ S
-        case 5:
+        case S:
         {
-            auto *color = new Utilities::RGB(255, 255, 0);
-            shape = new Square*[4];
-            shape[0] = new Square(5, 0, color);
-            shape[1] = new Square(6, 0, color);
-            shape[2] = new Square(4, 1, color);
-            shape[3] = new Square(5, 1, color);
+            RGB color(255, 255, 0);
+            shape = new Square[4] {
+                Square(5, 0, color),
+                Square(6, 0, color),
+                Square(4, 1, color),
+                Square(5, 1, color),
+            };
             break;
         }
         // ／(^ㅅ^)＼ T
-        case 6:
+        case T:
         {
-            auto *color = new Utilities::RGB(255, 255, 0);
-            shape = new Square*[4];
-            shape[0] = new Square(4, 0, color);
-            shape[1] = new Square(5, 0, color);
-            shape[2] = new Square(6, 0, color);
-            shape[3] = new Square(5, 1, color);
+            RGB color(255, 255, 0);
+            shape = new Square[4] {
+                Square(4, 0, color),
+                Square(5, 0, color),
+                Square(6, 0, color),
+                Square(5, 1, color),
+            };
             break;
         }
     }

@@ -12,25 +12,29 @@
 //           - Designation for tile patterns
 //           - 2D array of boolean for each square that needs to be checked for each type of collision
 //           - int for rotation state
-class Shape
+
+struct Shape
 {
-public:
-    class Square
+    struct Square
     {
-    public:
         int x;
         int y;
         int h;
         int w;
-        Utilities::RGB rgb;
+        RGB color;
 
-        Square();
-        Square(int x, int y, int r, int g, int b);
-        Square(int x, int y, Utilities::RGB* rgb);
+        Square(int x, int y, RGB color)
+        : x(x), y(y), color(color)
+        {};
+        Square(int x, int y, int r, int g, int b)
+        : x(x),y(y),color(r,g,b)
+        {};
+
     };
 
-    Square** shape;
+    Square* shape;
 
+    enum Piece { SQUARE, LINE, J, L, Z, S, T };
     Shape();
     bool rotateR();
     bool rotateL();
