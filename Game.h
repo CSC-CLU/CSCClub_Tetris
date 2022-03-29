@@ -30,6 +30,7 @@ private:
     void processInput();
     void gameLoop();
     void prepareScene();
+    void prepareScene(int r, int g, int b);
     void presentScene();
 };
 
