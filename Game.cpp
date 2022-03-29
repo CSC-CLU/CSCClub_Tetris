@@ -82,12 +82,16 @@ void Game::prepareScene(int r, int g, int b)
 }
 
 // x and y correspond to grid tiles.
+// fixme this sets the default color to black.
 void Game::drawSquare(int x, int y) {
     SDL_Rect rect;
     rect.w = rect.h = tileLength();
     rect.x = gridLeft() + rect.w * x;
     rect.y = rect.h * y;
-    SDL_RenderDrawRect(this->renderer, &rect);
+    SDL_RenderFillRect(this->renderer, &rect);
+    // this is startlingly inefficient.
+    SDL_SetRenderDrawColor(this->renderer,0,0,0,0);
+    SDL_RenderDrawRect(this->renderer,&rect);
 }
 void Game::drawSquare(int x, int y, int r, int g, int b) {
     // fixme this permanently sets the color in question.
