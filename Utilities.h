@@ -14,6 +14,10 @@ struct RGB
     RGB();
     RGB(int r, int g, int b);
 
+    // careful, this is called implicitly!
+    RGB(int hex);
+
+    int hex() const;
 };
 
 
