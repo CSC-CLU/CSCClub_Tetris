@@ -67,13 +67,13 @@ void Game::prepareScene(int r, int g, int b)
     SDL_RenderClear(this->renderer);
     // render grid
     SDL_SetRenderDrawColor(this->renderer, 0, 0, 0, 0);
-    for(int i = 0; i <= COLS*tileLength(); i += tileLength())
+    for(int i = gridLeft(); i <= gridRight(); i += tileLength())
     {
         SDL_RenderDrawLine(this->renderer, i, 0, i, tileLength()*ROWS);
     }
     for(int i = 0; i <= ROWS*tileLength(); i += tileLength())
     {
-        SDL_RenderDrawLine(this->renderer, 0, i, tileLength()*COLS, i);
+        SDL_RenderDrawLine(this->renderer, gridLeft(), i, gridRight(), i);
     }
     drawSquare(3,3,255,255,255);
     drawSquare(3,4);
@@ -85,7 +85,7 @@ void Game::prepareScene(int r, int g, int b)
 void Game::drawSquare(int x, int y) {
     SDL_Rect rect;
     rect.w = rect.h = tileLength();
-    rect.x = rect.w * x;
+    rect.x = gridLeft() + rect.w * x;
     rect.y = rect.h * y;
     SDL_RenderDrawRect(this->renderer, &rect);
 }

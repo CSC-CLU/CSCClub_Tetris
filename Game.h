@@ -14,6 +14,7 @@ enum class GameState
     PLAY, EXIT
 };
 
+// todo y'know there's only one of these. we could have a reference to the one game object, which would let us diversify a lot more.
 class Game
 {
 public:
@@ -30,9 +31,14 @@ private:
     GameState gameState;
     SDL_Renderer* renderer;
 
-    const int ROWS=20,COLS=10;
+    // grid
+    const int ROWS=20, COLS=10, // actual board dimensions
+        L_COLS=6, R_COLS=14, // for guaranteeing space exists.
+        T_COLS=COLS+L_COLS+R_COLS;
+    int gridLeft() { return tileLength() * L_COLS; }
+    int gridRight() { return tileLength() * (COLS + L_COLS); }
     int tileLength() const
-    { return (int)fmin(screenHeight/ROWS,screenWidth/COLS); }
+    { return (int)fmin(screenHeight/ROWS,screenWidth/T_COLS); }
 
     void initSystems();
     void processInput();
