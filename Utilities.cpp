@@ -4,16 +4,22 @@
 
 #include "Utilities.h"
 
-Utilities::RGB::RGB()
-{
-    r = 255;
-    g = 255;
-    b = 255;
-}
+RGB::RGB()
+: RGB(255,255,255)
+{}
 
-Utilities::RGB::RGB(int r, int g, int b)
-{
-    this->r = r;
-    this->g = g;
-    this->b = b;
+RGB::RGB(int r, int g, int b)
+: r(r)
+, g(g)
+, b(b)
+{}
+
+RGB::RGB(int hex)
+: r(hex >> 16 & 0xFF)
+, g(hex >> 8 & 0xFF)
+, b(hex & 0xFF)
+{}
+
+int RGB::hex() const {
+    return r << 16 | g << 8 | b;
 }

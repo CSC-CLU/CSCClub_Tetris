@@ -6,21 +6,18 @@
 #define CSCCLUB_TETRIS_UTILITIES_H
 
 
-class Utilities
+/** wrapper for color operations **/
+struct RGB
 {
-public:
-    class RGB
-    {
-        int r;
-        int g;
-        int b;
+    int r,g,b;
 
-    public:
-        RGB();
+    RGB();
+    RGB(int r, int g, int b);
 
-        RGB(int r, int g, int b);
-    };
+    // careful, this is called implicitly!
+    RGB(int hex);
 
+    int hex() const;
 };
 
 

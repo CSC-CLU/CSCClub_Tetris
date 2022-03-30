@@ -61,33 +61,48 @@ void Game::prepareScene()
     prepareScene(256/3,256/3,256/3);
 }
 
+#include "shape.h"
+int curPiece = 0;
 void Game::prepareScene(int r, int g, int b)
 {
     SDL_SetRenderDrawColor(this->renderer, r, g, b, 255);
     SDL_RenderClear(this->renderer);
     // render grid
     SDL_SetRenderDrawColor(this->renderer, 0, 0, 0, 0);
-    for(int i = 0; i <= COLS*tileLength(); i += tileLength())
+    for(int i = gridLeft(); i <= gridRight(); i += tileLength())
     {
         SDL_RenderDrawLine(this->renderer, i, 0, i, tileLength()*ROWS);
     }
     for(int i = 0; i <= ROWS*tileLength(); i += tileLength())
     {
-        SDL_RenderDrawLine(this->renderer, 0, i, tileLength()*COLS, i);
+        SDL_RenderDrawLine(this->renderer, gridLeft(), i, gridRight(), i);
     }
-    drawSquare(3,3,255,255,255);
-    drawSquare(3,4);
-    drawSquare(3,5);
-    drawSquare(2,4,255,0,0);
+    // this generates the prototype preview area.
+    for(int i=0; i < L_COLS-2; i++) {
+        for(int j=0; j < L_COLS-2; j++) {
+            int c = 255/2;
+            drawSquare(i-L_COLS+1, j+1,c,c,c);
+        }
+    }
+    Shape testShape(static_cast<Shape::Piece>(curPiece));
+    curPiece = (curPiece+1) % (Shape::T+1);
+    for(int i=0; i < 4; i++) {
+        Shape::Square square = testShape.shape[i];
+        drawSquare(-square.x+1, square.y+1, square.color.r, square.color.g, square.color.b);
+    }
 }
 
 // x and y correspond to grid tiles.
+// fixme this sets the default color to black.
 void Game::drawSquare(int x, int y) {
     SDL_Rect rect;
     rect.w = rect.h = tileLength();
-    rect.x = rect.w * x;
+    rect.x = gridLeft() + rect.w * x;
     rect.y = rect.h * y;
-    SDL_RenderDrawRect(this->renderer, &rect);
+    SDL_RenderFillRect(this->renderer, &rect);
+    // this is startlingly inefficient.
+    SDL_SetRenderDrawColor(this->renderer,0,0,0,0);
+    SDL_RenderDrawRect(this->renderer,&rect);
 }
 void Game::drawSquare(int x, int y, int r, int g, int b) {
     // fixme this permanently sets the color in question.
@@ -111,10 +126,11 @@ void Game::processInput()
                 gameState = GameState::EXIT;
                 break;
             case SDL_MOUSEMOTION:
-                prepareScene(/*evnt.motion.x * 255 / screenWidth, evnt.motion.y * 255 / screenHeight, 255*/);
+                //prepareScene(/*evnt.motion.x * 255 / screenWidth, evnt.motion.y * 255 / screenHeight, 255*/);
                 std::cout << evnt.motion.x << " " << evnt.motion.y << std::endl;
                 break;
             case SDL_KEYDOWN:
+                prepareScene();
                 std::cout << evnt.key.keysym.scancode << std::endl;
 
         }
