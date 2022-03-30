@@ -61,6 +61,8 @@ void Game::prepareScene()
     prepareScene(256/3,256/3,256/3);
 }
 
+#include "shape.h"
+int curPiece = 0;
 void Game::prepareScene(int r, int g, int b)
 {
     SDL_SetRenderDrawColor(this->renderer, r, g, b, 255);
@@ -75,16 +77,18 @@ void Game::prepareScene(int r, int g, int b)
     {
         SDL_RenderDrawLine(this->renderer, gridLeft(), i, gridRight(), i);
     }
-    drawSquare(3,3,0,255,255);
-    drawSquare(3,4,0,255,255);
-    drawSquare(3,5,0,255,255);
-    drawSquare(2,4,0,255,255);
     // this generates the prototype preview area.
     for(int i=0; i < L_COLS-2; i++) {
         for(int j=0; j < L_COLS-2; j++) {
             int c = 255/2;
             drawSquare(i-L_COLS+1, j+1,c,c,c);
         }
+    }
+    Shape testShape(static_cast<Shape::Piece>(curPiece));
+    curPiece = (curPiece+1) % (Shape::T+1);
+    for(int i=0; i < 4; i++) {
+        Shape::Square square = testShape.shape[i];
+        drawSquare(-square.x+1, square.y+1, square.color.r, square.color.g, square.color.b);
     }
 }
 
@@ -122,10 +126,11 @@ void Game::processInput()
                 gameState = GameState::EXIT;
                 break;
             case SDL_MOUSEMOTION:
-                prepareScene(/*evnt.motion.x * 255 / screenWidth, evnt.motion.y * 255 / screenHeight, 255*/);
+                //prepareScene(/*evnt.motion.x * 255 / screenWidth, evnt.motion.y * 255 / screenHeight, 255*/);
                 std::cout << evnt.motion.x << " " << evnt.motion.y << std::endl;
                 break;
             case SDL_KEYDOWN:
+                prepareScene();
                 std::cout << evnt.key.keysym.scancode << std::endl;
 
         }
