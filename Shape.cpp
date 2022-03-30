@@ -3,19 +3,33 @@
 //
 
 #include <random>
+#include <chrono>
 #include "Shape.h"
 
-Shape::Shape()
-{
-    std::default_random_engine random;
+Shape::Shape() {
+    // stack overflow said to use this.
+    auto random(std::mt19937(std::chrono::steady_clock::now().time_since_epoch().count()));
     std::uniform_int_distribution<int> distribution(SQUARE,T);
-    auto type = static_cast<Piece>(distribution(random));
+    *this = Shape(static_cast<Piece>(distribution(random)));
+}
+
+// COLOR PATTERN
+// 001 SQUARE
+// 010 LINE
+// 011 J
+// 100 L
+// 101 Z
+// 110 S
+// 111 T
+
+Shape::Shape(Piece type)
+{
     switch(type)
     {
         // ／(^ㅅ^)＼ Square
         case SQUARE:
         {
-            RGB color(255, 255, 0);
+            RGB color(0, 0, 255);
             shape = new Square[4] {
                 Square(4, 0, color),
                 Square(5, 0, color),
@@ -27,7 +41,7 @@ Shape::Shape()
         // ／(^ㅅ^)＼ Line
         case LINE:
         {
-            RGB color(255, 255, 255);
+            RGB color(0, 255, 0);
             shape = new Square[4] {
                 Square(3,0,color),
                 Square(4,0,color),
@@ -39,7 +53,7 @@ Shape::Shape()
         // ／(^ㅅ^)＼ J
         case J:
         {
-            RGB color(255, 255, 0);
+            RGB color(0, 255, 255);
             shape = new Square[4] {
                 Square(4, 0, color),
                 Square(5, 0, color),
@@ -51,7 +65,7 @@ Shape::Shape()
         // ／(^ㅅ^)＼ L
         case L:
         {
-            RGB color(255, 255, 0);
+            RGB color(255, 0, 0);
             shape = new Square[4] {
                 Square(4, 0, color),
                 Square(5, 0, color),
@@ -63,7 +77,7 @@ Shape::Shape()
         // ／(^ㅅ^)＼ Z
         case Z:
         {
-            RGB color(255, 255, 0);
+            RGB color(255, 0, 255);
             shape = new Square[4] {
                 Square(4, 0, color),
                 Square(5, 0, color),
@@ -87,7 +101,7 @@ Shape::Shape()
         // ／(^ㅅ^)＼ T
         case T:
         {
-            RGB color(255, 255, 0);
+            RGB color(255, 255, 255);
             shape = new Square[4] {
                 Square(4, 0, color),
                 Square(5, 0, color),

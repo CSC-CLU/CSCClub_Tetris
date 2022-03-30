@@ -35,6 +35,7 @@ struct Shape
     Square* shape;
 
     enum Piece { SQUARE, LINE, J, L, Z, S, T };
+    Shape(Piece);
     Shape();
     bool rotateR();
     bool rotateL();
