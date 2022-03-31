@@ -61,7 +61,7 @@ void Game::prepareScene()
     prepareScene(256/3,256/3,256/3);
 }
 
-#include "shape.h"
+#include "Shape.h"
 int curPiece = 0;
 void Game::prepareScene(int r, int g, int b)
 {

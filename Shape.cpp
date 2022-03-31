@@ -20,7 +20,7 @@ Shape::Shape() {
 // 100 L
 // 101 Z
 // 110 S
-// 111 T
+// 111 Ts
 
 Shape::Shape(Piece type)
 {
