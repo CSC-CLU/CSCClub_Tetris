@@ -171,6 +171,17 @@ Shape::Shape(Piece type)
     }
 }
 
+bool Shape::move(int dx, int dy) {
+    x += dx;
+    y += dy;
+    if ( isInvalidState() ){
+        x -= dx;
+        y -= dy;
+        return false;
+    }
+    return true;
+}
+
 bool Shape::rotate(int _x, int _y) {
     if(nRotations == 0) {
         for(int i=0; i < N_SQUARES; i++) {
@@ -186,6 +197,10 @@ bool Shape::rotate(int _x, int _y) {
         for(int i = 0; i < N_SQUARES; i++)
             shape[i] = rm[i];
     }
-    // fixme this needs to have checks for conflicts.
+    if(isInvalidState()) {
+        // note that if the initial state was invalid this will crash the game (exit code 11)
+        rotate(-_x,-_y);
+        return false;
+    }
     return true;
 }

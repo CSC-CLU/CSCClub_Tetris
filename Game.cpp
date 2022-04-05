@@ -15,12 +15,24 @@ void fatalError(std::string errorString)
     SDL_Quit();
 }
 
+const Game* gameInstance;
 Game::Game(int screenWidth, int screenHeight)
 : window(nullptr)
 , screenWidth(screenWidth)
 , screenHeight(screenHeight)
 , gameState(GameState::PLAY)
-{}
+{
+    gameInstance = this;
+}
+
+bool Shape::isInvalidPosition(int x,int y)
+{
+    return x < 0
+        || y < 0
+        || x >= Game::COLS
+        || y >= Game::ROWS
+        || gameInstance->grid[x][y].hex() != RGB().hex();
+}
 
 Game::~Game()
 {

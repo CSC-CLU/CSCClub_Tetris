@@ -41,12 +41,13 @@ struct Shape
     Shape(Piece);
     Shape();
 
-    // fixme needs to have checks such that invalid moves are discarded.
+    // rotate is implemented in Game.cpp
     bool rotateR() { return rotate(1, -1); }
     bool rotateL() { return rotate(-1, 1); }
-    bool moveDown() { y++; };
-    bool moveR() { x++; }
-    bool moveL() { x--; }
+
+    bool moveDown() { return move(0,1); }
+    bool moveR() { return move(1); }
+    bool moveL() { return move(-1); }
 
     void setPos(int x, int y) {
         this->x = x;
@@ -68,6 +69,17 @@ struct Shape
     }
 
 private:
+    static bool isInvalidPosition(int x, int y);
+    bool isInvalidPosition(Square s) const
+    { return isInvalidPosition(s.x+x,s.y+y); }
+    bool isInvalidState()
+    {
+        for(int i=0; i < N_SQUARES; i++)
+            if(isInvalidPosition(shape[i])) return true;
+        return false;
+    }
+
+    bool move(int x,int y=0);
     bool rotate(int x, int y);
 
     int nRotation = 0;
