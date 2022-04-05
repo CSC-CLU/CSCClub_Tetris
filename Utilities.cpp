@@ -4,10 +4,8 @@
 
 #include "Utilities.h"
 
-RGB::RGB()
-: RGB(255,255,255)
-{}
-
+// default color
+RGB::RGB() : RGB(100,100,100) {}
 RGB::RGB(int r, int g, int b)
 : r(r)
 , g(g)
