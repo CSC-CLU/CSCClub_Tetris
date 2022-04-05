@@ -87,8 +87,8 @@ void Game::prepareScene(int r, int g, int b)
     Shape testShape(static_cast<Shape::Piece>(curPiece));
     curPiece = (curPiece+1) % (Shape::T+1);
     for(int i=0; i < 4; i++) {
-        Shape::Square square = testShape.shape[i];
-        drawSquare(-square.x+1, square.y+1, square.color.r, square.color.g, square.color.b);
+        Shape::Square square = testShape[i];
+        drawSquare(-square.x+1, square.y+1, testShape.color.r, testShape.color.g, testShape.color.b);
     }
 }
 

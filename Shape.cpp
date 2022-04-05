@@ -6,11 +6,63 @@
 #include <chrono>
 #include "Shape.h"
 
-Shape::Shape() {
+constexpr static int
+squareRotations[1][4][2] = {
+        {
+            {0, 0},
+            {1, 0},
+            {0, 1},
+            {1, 1}
+        }
+},
+lineRotations[4][4][2] = {
+        {
+            {-2,0},
+            {-1,0},
+            {0,0},
+            {1,0},
+        },
+        {
+            {0, -2},
+            {0,-1},
+            {0,0},
+            {0,1}
+        },
+        {
+            {-2, -1},
+            {-1,-1},
+            {0,-1},
+            {1,-1}
+        },
+        {
+            {-1, -2},
+            {-1,-1},
+            {-1,0},
+            {-1,1}
+        },
+};
+
+Shape::Piece randomPiece()
+{
     // stack overflow said to use this.
     auto random(std::mt19937(std::chrono::steady_clock::now().time_since_epoch().count()));
-    std::uniform_int_distribution<int> distribution(SQUARE,T);
-    *this = Shape(static_cast<Piece>(distribution(random)));
+    std::uniform_int_distribution<int> distribution(Shape::Piece::SQUARE,Shape::Piece::T);
+    return static_cast<Shape::Piece>(distribution(random));
+}
+Shape::Shape()
+: Shape( randomPiece() )
+{}
+
+Shape::Square Shape::getStartingPos() const {
+    Square min = {4,4};
+    for(int i=0; i<Shape::N_SQUARES;i++) {
+        Shape::Square s = shape[i];
+        if(s.x < min.x) min.x = s.x;
+        if(s.y < min.y) min.y = s.y;
+    }
+    min.x *= -1;
+    min.y *= -1;
+    return min;
 }
 
 // COLOR PATTERN
@@ -29,86 +81,111 @@ Shape::Shape(Piece type)
         // ／(^ㅅ^)＼ Square
         case SQUARE:
         {
-            RGB color(0, 0, 255);
+            color = {0, 0, 255};
             shape = new Square[4] {
-                Square(4, 0, color),
-                Square(5, 0, color),
-                Square(4, 1, color),
-                Square(5, 1, color),
+                {0, 0},
+                {1, 0},
+                {0, 1},
+                {1, 1},
             };
+            nRotations = 1;
+            for (int r=0; r < nRotations; r++) for (int s=0; s < N_SQUARES; s++) for (int c=0; c < 2; c++)
+                rotations[r][s][c] = squareRotations[r][s][c];
             break;
         }
         // ／(^ㅅ^)＼ Line
         case LINE:
         {
-            RGB color(0, 255, 0);
+            color = {0, 255, 0};
             shape = new Square[4] {
-                Square(3,0,color),
-                Square(4,0,color),
-                Square(5,0,color),
-                Square(6,0,color),
+                {-2,1},
+                {-1,1},
+                {0,1},
+                {1,1},
             };
+            nRotations = 4;
+            for(int r = 0; r < nRotations; r++) for(int s = 0; s < N_SQUARES; s++) for(int c = 0; c < 2; c++)
+                rotations[r][s][c] = lineRotations[r][s][c];
             break;
         }
         // ／(^ㅅ^)＼ J
         case J:
         {
-            RGB color(0, 255, 255);
+            color = {0, 255, 255};
             shape = new Square[4] {
-                Square(4, 0, color),
-                Square(5, 0, color),
-                Square(6, 0, color),
-                Square(6, 1, color)
+                {0, 0},
+                {1, 0},
+                {2, 0},
+                {2, 1}
             };
             break;
         }
         // ／(^ㅅ^)＼ L
         case L:
         {
-            RGB color(255, 0, 0);
-            shape = new Square[4] {
-                Square(4, 0, color),
-                Square(5, 0, color),
-                Square(6, 0, color),
-                Square(4, 1, color),
+            color = {255, 0, 0};
+            shape = new Square[4]{
+                {0, 0},
+                {1, 0},
+                {2, 0},
+                {0, 1}
             };
             break;
         }
         // ／(^ㅅ^)＼ Z
         case Z:
         {
-            RGB color(255, 0, 255);
+            color = {255, 0, 255};
             shape = new Square[4] {
-                Square(4, 0, color),
-                Square(5, 0, color),
-                Square(5, 1, color),
-                Square(6, 1, color),
+                {-1, -1},
+                {0, -1},
+                {0, 0},
+                {1, 0},
             };
             break;
         }
         // ／(^ㅅ^)＼ S
         case S:
         {
-            RGB color(255, 255, 0);
+            color = {255, 255, 0};
             shape = new Square[4] {
-                Square(5, 0, color),
-                Square(6, 0, color),
-                Square(4, 1, color),
-                Square(5, 1, color),
+                {-1, 0},
+                {0, 0},
+                {0, -1},
+                {1, -1},
             };
             break;
         }
         // ／(^ㅅ^)＼ T
         case T:
         {
-            RGB color(255, 255, 255);
+            color = {255, 255, 255};
             shape = new Square[4] {
-                Square(4, 0, color),
-                Square(5, 0, color),
-                Square(6, 0, color),
-                Square(5, 1, color),
+                {-1, 0},
+                {0, 0},
+                {0, -1},
+                {1, 0},
             };
             break;
         }
     }
+}
+
+bool Shape::rotate(int _x, int _y) {
+    if(nRotations == 0) {
+        for(int i=0; i < N_SQUARES; i++) {
+            shape[i] = {
+                    _x * shape[i].y % N_SQUARES,
+                    _y * shape[i].x % N_SQUARES
+            };
+        }
+    } else {
+        nRotation += _x + nRotations;
+        nRotation %= nRotations;
+        auto rm = rotations[nRotation];
+        for(int i = 0; i < N_SQUARES; i++)
+            shape[i] = rm[i];
+    }
+    // fixme this needs to have checks for conflicts.
+    return true;
 }

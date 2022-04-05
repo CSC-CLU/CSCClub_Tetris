@@ -17,32 +17,62 @@ struct Shape
 {
     struct Square
     {
-        int x;
-        int y;
-        int h;
-        int w;
-        RGB color;
+        int x, y;
 
-        Square(int x, int y, RGB color)
-        : x(x), y(y), color(color)
-        {};
-        Square(int x, int y, int r, int g, int b)
-        : x(x),y(y),color(r,g,b)
-        {};
-
+        Square(int x, int y): x(x), y(y) {};
+        Square(int c[2]): Square(c[0], c[1]) {}
     };
 
+    // x and y correspond to the pivot point. probably.
+    int x=0, y=0;
+
+    // could be converted to a static array ig.
     Square* shape;
+    // shortcut way of accessing squares
+    Square operator[](int index) const { return shape[index]; }
+
+    RGB color;
 
     enum Piece { SQUARE, LINE, J, L, Z, S, T };
+    static constexpr int N_SQUARES = 4;
+
+    Square getStartingPos() const;
+
     Shape(Piece);
     Shape();
-    bool rotateR();
-    bool rotateL();
-    bool moveDown();
-    bool moveR();
-    bool moveL();
+
+    // fixme needs to have checks such that invalid moves are discarded.
+    bool rotateR() { return rotate(1, -1); }
+    bool rotateL() { return rotate(-1, 1); }
+    bool moveDown() { y++; };
+    bool moveR() { x++; }
+    bool moveL() { x--; }
+
+    void setPos(int x, int y) {
+        this->x = x;
+        this->y = y;
+    }
+    void setPos(Square s) { setPos(s.x,s.y); }
+
+
+    Shape(Square *shape)
+            : shape(shape) {};
+
+    // ensures that the values and not the array itself is copied.
+    Shape(const Shape& shape)
+    : Shape(new Square[4]{shape[0], shape[1], shape[2], shape[3]})
+    {};
+
+    ~Shape() {
+        delete shape;
+    }
+
+private:
+    bool rotate(int x, int y);
+
+    int nRotation = 0;
+    int nRotations = 0;
+    // maximum size for a rotation
+    int rotations[4][4][2];
 };
-
-
 #endif //CSCCLUB_TETRIS_SHAPE_H
