@@ -155,6 +155,15 @@ void Game::processInput()
     {
         switch(evnt.type)
         {
+            case SDL_WINDOWEVENT:
+                switch(evnt.window.event) {
+                    case SDL_WINDOWEVENT_RESIZED:
+                        screenWidth = evnt.window.data1;
+                        screenHeight = evnt.window.data2;
+                        prepareScene();
+                        break;
+                };
+                break;
             case SDL_QUIT:
                 gameState = GameState::EXIT;
                 break;
