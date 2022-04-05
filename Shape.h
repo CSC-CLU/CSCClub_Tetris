@@ -23,12 +23,11 @@ struct Shape
         Square(int c[2]): Square(c[0], c[1]) {}
     };
 
-    // x and y correspond to the pivot point. probably.
+    // x and y correspond to the pivot point
     int x=0, y=0;
 
-    // could be converted to a static array ig.
     Square* shape;
-    // shortcut way of accessing squares
+    // shortcut way of accessing shape
     Square operator[](int index) const { return shape[index]; }
 
     RGB color;
@@ -36,12 +35,12 @@ struct Shape
     enum Piece { SQUARE, LINE, J, L, Z, S, T };
     static constexpr int N_SQUARES = 4;
 
+    // necessary offset for the shape to get rendered in the grid
     Square getStartingPos() const;
 
     Shape(Piece);
     Shape();
 
-    // rotate is implemented in Game.cpp
     bool rotateR() { return rotate(1, -1); }
     bool rotateL() { return rotate(-1, 1); }
 
