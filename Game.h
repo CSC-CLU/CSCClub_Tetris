@@ -16,7 +16,6 @@ enum class GameState
     PLAY, EXIT
 };
 
-// todo y'know there's only one of these. we could have a reference to the one game object, which would let us diversify a lot more.
 class Game
 {
 public:
@@ -33,25 +32,24 @@ private:
     GameState gameState;
     SDL_Renderer* renderer;
 
-    // grid
+public:
+    // grid logic
     constexpr static int ROWS=20, COLS=10, // actual board dimensions
         L_COLS=6, R_COLS=14, // for guaranteeing space exists.
         T_COLS=COLS+L_COLS+R_COLS;
-    int gridLeft() { return tileLength() * L_COLS; }
-    int gridRight() { return tileLength() * (COLS + L_COLS); }
+
+    int gridLeft() const { return tileLength() * L_COLS; }
+    int gridRight() const { return tileLength() * (COLS + L_COLS); }
     int tileLength() const
     { return (int)fmin(screenHeight/ROWS,screenWidth/T_COLS); }
 
+    RGB grid[COLS][ROWS];
+
+private:
+    // shape logic
     Shape *nxtShape=new Shape(),*curShape = nullptr;
     void loadNewShape();
-
-    // actually rotated 90 degrees :/
-    RGB grid[COLS][ROWS];
     void placeShape();
-
-    void initSystems();
-    void processInput();
-    void gameLoop();
     // FIXME perhaps this sort of logic should go into Display? Would require a rather deep refactor though.
     // render methods
     void drawShape(const Shape&);
@@ -63,6 +61,10 @@ private:
     void prepareScene();
     void prepareScene(int r, int g, int b);
     void presentScene();
+    // setup logic
+    void initSystems();
+    void processInput();
+    void gameLoop();
 };
 
 
