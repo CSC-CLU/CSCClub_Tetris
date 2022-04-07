@@ -82,6 +82,12 @@ void Game::loadNewShape() {
     nxtShape = new Shape();
 }
 
+bool Game::moveCurShapeDown() {
+    if(curShape->moveDown()) return true;
+    placeShape();
+    return false;
+}
+
 void Game::placeShape() {
     Shape& s = *curShape;
     for(int i=0; i < Shape::N_SQUARES; i++) {
@@ -132,7 +138,8 @@ void Game::processInput()
                         curShape->y--;
                         break;
                     case SDL_SCANCODE_S:
-                        curShape->moveDown();
+                        // this will end up being the impact
+                        moveCurShapeDown();
                         break;
                     case SDL_SCANCODE_A:
                         curShape->moveL();
@@ -156,7 +163,8 @@ void Game::processInput()
                         nxtShape = cyclePiece(-1);
                         break;
                     case 40:
-                        placeShape();
+                        // move it down all the way
+                        while(moveCurShapeDown());
                         break;
                     case SDL_SCANCODE_DELETE:
                         loadNewShape();
