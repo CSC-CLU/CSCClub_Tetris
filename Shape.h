@@ -79,7 +79,7 @@ private:
     }
 
     bool move(int x,int y=0);
-    bool rotate(int x, int y);
+    bool rotate(int x, int y, bool=false);
 
     int nRotation = 0;
     int nRotations = 0;

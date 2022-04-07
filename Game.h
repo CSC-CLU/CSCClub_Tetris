@@ -43,6 +43,38 @@ public:
     int tileLength() const
     { return (int)fmin(screenHeight/ROWS,screenWidth/T_COLS); }
 
+    bool rowComplete(int y) const {
+        for(int i = 0; i < COLS; i++)
+        {
+            if(grid[i][y].hex() == RGB().hex())
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    bool moveRows(int y)
+    {
+        for(int i = y; i > 0; i--)
+        {
+            for(int j = 0; j < COLS; j++)
+            {
+                grid[j][i] = grid[j][i - 1];
+            }
+        }
+        return clearRow(0);
+    }
+
+    bool clearRow(int y)
+    {
+        for(int i = 0; i < COLS; i++)
+        {
+            grid[i][y] = RGB();
+        }
+        return true;
+    }
+
     RGB grid[COLS][ROWS];
 
 private:

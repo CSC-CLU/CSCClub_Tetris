@@ -139,6 +139,13 @@ void Game::placeShape() {
     for(int i=0; i < Shape::N_SQUARES; i++) {
         grid[s[i].x+s.x][s[i].y+s.y] = curShape->color;
     }
+    for(int i = 0; i < Shape::N_SQUARES; i++)
+    {
+        if(rowComplete(s[i].y + s.y))
+        {
+            moveRows(s[i].y + s.y);
+        }
+    }
     loadNewShape();
 }
 
@@ -205,7 +212,7 @@ void Game::processInput()
                         loadNewShape();
                         nxtShape = cyclePiece(-1);
                         break;
-                    case SDL_SCANCODE_INSERT:
+                    case 40:
                         placeShape();
                         break;
                     case SDL_SCANCODE_DELETE:

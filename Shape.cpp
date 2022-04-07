@@ -182,7 +182,7 @@ bool Shape::move(int dx, int dy) {
     return true;
 }
 
-bool Shape::rotate(int _x, int _y) {
+bool Shape::rotate(int _x, int _y, bool force) {
     if(nRotations == 0) {
         for(int i=0; i < N_SQUARES; i++) {
             shape[i] = {
@@ -197,9 +197,9 @@ bool Shape::rotate(int _x, int _y) {
         for(int i = 0; i < N_SQUARES; i++)
             shape[i] = rm[i];
     }
-    if(isInvalidState()) {
+    if(!force && isInvalidState()) {
         // note that if the initial state was invalid this will crash the game (exit code 11)
-        rotate(-_x,-_y);
+        rotate(-_x,-_y, true);
         return false;
     }
     return true;
