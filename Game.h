@@ -32,7 +32,7 @@ private:
     GameState gameState;
     SDL_Renderer* renderer;
 
-// GRID LOGIC
+// grid logic (game.cpp)
 public:
     constexpr static int ROWS=20, COLS=10; // actual board dimensions
     constexpr static int PADDING=1; // minimum space between elements
@@ -88,16 +88,15 @@ private:
     void loadNewShape();
     void placeShape();
     // FIXME perhaps this sort of logic should go into Display? Would require a rather deep refactor though.
-    // render methods
+    // render methods (scene.cpp)
     void drawShape(const Shape&);
     void drawSquare(int x,int y);
     void drawSquare(int x,int y,int,int,int);
     void drawSquare(int x, int y, RGB color)
     { drawSquare(x,y,color.r,color.g,color.b); }
-    // display methods
     void prepareScene(RGB={255/3,255/3,255/3});
     void presentScene();
-    // setup logic
+    // control logic (game.cpp)
     void initSystems();
     void processInput();
     void gameLoop();
