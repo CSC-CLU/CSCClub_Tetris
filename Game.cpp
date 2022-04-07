@@ -68,11 +68,6 @@ void Game::initSystems()
 
 }
 
-void Game::prepareScene()
-{
-    prepareScene(256/3,256/3,256/3);
-}
-
 int curPiece = 0;
 Shape* cyclePiece(int inc) {
     int N = Shape::T+1;
@@ -87,26 +82,28 @@ void Game::loadNewShape() {
     nxtShape = new Shape();
 }
 
-void Game::prepareScene(int r, int g, int b)
+void Game::prepareScene(RGB backgroundColor)
 {
-    SDL_SetRenderDrawColor(this->renderer, r, g, b, 255);
+    SDL_SetRenderDrawColor(this->renderer, backgroundColor.r, backgroundColor.g, backgroundColor.b, 255);
     SDL_RenderClear(this->renderer);
     // render grid
-    SDL_SetRenderDrawColor(this->renderer, 0, 0, 0, 0);
     for(int x=0; x < COLS; x++) for(int y=0; y < ROWS; y++) {
         drawSquare(x,y,grid[x][y]);
     }
+    int previewOffset = PREVIEW_SIZE+PADDING;
+    RGB previewColor = 0x888888;
     // this generates the prototype preview area.
-    for(int i=0; i < L_COLS-2; i++) {
-        for(int j=0; j < L_COLS-2; j++) {
-            int c = 255/2;
-            drawSquare(i-L_COLS+1, j+1,c,c,c);
+    for(int i=0; i < PREVIEW_SIZE; i++) {
+        // height is half the length (rounded up), as pieces are initially situated horizontally.
+        for(int j=0; j < (PREVIEW_SIZE+1)/2; j++) {
+            // padding is applied to ensure the preview area doesn't touch the grid
+            drawSquare( i-previewOffset, j, previewColor);
         }
     }
     drawShape(*curShape);
     nxtShape->setPos(nxtShape->getStartingPos());
-    nxtShape->x -= L_COLS-1;
-    nxtShape->y++;
+    // offset it to fit inside the preview area.
+    nxtShape->x -= previewOffset;
     drawShape(*nxtShape);
 }
 
@@ -116,7 +113,7 @@ void Game::drawSquare(int x, int y) {
     SDL_Rect rect;
     rect.w = rect.h = tileLength();
     rect.x = gridLeft() + rect.w * x;
-    rect.y = rect.h * y;
+    rect.y = rect.h * (y+PADDING); // need to take into account padding since grid is rendered at the top
     SDL_RenderFillRect(this->renderer, &rect);
     // this is startlingly inefficient.
     SDL_SetRenderDrawColor(this->renderer,0,0,0,0);
