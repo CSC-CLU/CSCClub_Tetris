@@ -17,6 +17,8 @@ struct RGB
     // careful, this is called implicitly!
     RGB(int hex);
 
+    bool operator==(RGB other) const { return hex() == other.hex(); }
+
     int hex() const;
 };
 

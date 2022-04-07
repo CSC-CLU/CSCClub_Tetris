@@ -46,7 +46,7 @@ public:
     bool rowComplete(int y) const {
         for(int i = 0; i < COLS; i++)
         {
-            if(grid[i][y].hex() == RGB().hex())
+            if(grid[i][y] == RGB())
             {
                 return false;
             }

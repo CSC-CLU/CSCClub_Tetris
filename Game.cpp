@@ -31,7 +31,7 @@ bool Shape::isInvalidPosition(int x,int y)
         || y < 0
         || x >= Game::COLS
         || y >= Game::ROWS
-        || gameInstance->grid[x][y].hex() != RGB().hex();
+        || !(gameInstance->grid[x][y] == RGB());
 }
 
 Game::~Game()
