@@ -98,9 +98,17 @@ private:
     void prepareScene(RGB={255/3,255/3,255/3});
     void presentScene();
     // control logic (game.cpp)
+    constexpr static uint32_t DELAY = 16;
     void initSystems();
     void processInput();
     void gameLoop();
+    // timer logic
+    int level = 1;
+    int timeLeft = 0;
+    // dropDelay is in terms of DELAY increments.
+    int dropDelay() const {
+        return pow(0.8-(level-1)*0.007,level-1)*1000/DELAY;
+    };
 };
 
 

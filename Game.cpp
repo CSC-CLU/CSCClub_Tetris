@@ -153,6 +153,12 @@ void Game::processInput()
                     case SDL_SCANCODE_E:
                         curShape->rotateR();
                         break;
+                    case SDL_SCANCODE_EQUALS:
+                        std::cout << "level: " << ++level << " --- speed=" << dropDelay() << std::endl;
+                        break;
+                    case SDL_SCANCODE_MINUS:
+                        std::cout << "level: " << --level << " --- speed=" << dropDelay() << std::endl;
+                        break;
                     // worth noting this cycles next, so if you want it to start cycling you need to do it twice.
                     case SDL_SCANCODE_RIGHT:
                         loadNewShape();
@@ -184,7 +190,11 @@ void Game::gameLoop()
     while (gameState != GameState::EXIT)
     {
         processInput();
+        if(timeLeft-- <= 0) {
+            moveCurShapeDown();
+            timeLeft = dropDelay();
+        }
         presentScene();
-        SDL_Delay(16);
+        SDL_Delay(DELAY);
     }
 }
