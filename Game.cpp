@@ -116,7 +116,6 @@ void Game::processInput()
                     case SDL_WINDOWEVENT_RESIZED:
                         screenWidth = evnt.window.data1;
                         screenHeight = evnt.window.data2;
-                        prepareScene();
                         break;
                 };
                 break;
@@ -186,15 +185,16 @@ void Game::processInput()
 void Game::gameLoop()
 {
     loadNewShape();
-    prepareScene();
-    while (gameState != GameState::EXIT)
+    while (true)
     {
+        prepareScene();
+        presentScene();
+        SDL_Delay(DELAY);
         processInput();
+        if(gameState == GameState::EXIT) break;
         if(timeLeft-- <= 0) {
             moveCurShapeDown();
             timeLeft = dropDelay();
         }
-        presentScene();
-        SDL_Delay(DELAY);
     }
 }
