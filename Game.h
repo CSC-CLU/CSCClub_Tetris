@@ -87,6 +87,7 @@ private:
     Shape *nxtShape=new Shape(),*curShape = nullptr;
     void loadNewShape();
     void placeShape();
+    bool moveCurShapeDown();
     // FIXME perhaps this sort of logic should go into Display? Would require a rather deep refactor though.
     // render methods (scene.cpp)
     void drawShape(const Shape&);
