@@ -127,6 +127,10 @@ void Game::processInput()
 //                std::cout << evnt.motion.x << " " << evnt.motion.y << std::endl;
 //                break;
             case SDL_KEYUP:
+                if(fastFall && evnt.key.keysym.scancode == SDL_SCANCODE_S) {
+                    fastFall = false;
+                    std::cout << "fast fall off" << std::endl;
+                }
                 held = false;
                 break;
             case SDL_KEYDOWN:
@@ -137,9 +141,10 @@ void Game::processInput()
                         curShape->y--;
                         break;
                     case SDL_SCANCODE_S:
-                        // this will end up being the impact
-                        moveCurShapeDown();
-                        break;
+                        fastFall = true;
+                        timeLeft = 0;
+                        std::cout << "fast fall on" << std::endl;
+                        continue; // already reset timer.
                     case SDL_SCANCODE_A:
                         curShape->moveL();
                         break;
@@ -175,9 +180,7 @@ void Game::processInput()
                         loadNewShape();
                         break;
                 }
-                prepareScene();
-                std::cout << evnt.key.keysym.scancode << std::endl;
-
+                //std::cout << evnt.key.keysym.scancode << std::endl;
         }
     }
 }
@@ -192,6 +195,7 @@ void Game::gameLoop()
         SDL_Delay(DELAY);
         processInput();
         if(gameState == GameState::EXIT) break;
+        if(fastFall) timeLeft--;
         if(timeLeft-- <= 0) {
             moveCurShapeDown();
             timeLeft = dropDelay();
