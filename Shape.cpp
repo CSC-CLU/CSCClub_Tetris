@@ -81,7 +81,7 @@ Shape::Shape(Piece type)
         // ／(^ㅅ^)＼ Square
         case SQUARE:
         {
-            color = {0, 0, 255};
+            color = 0xFFFF00;
             shape = new Square[4] {
                 {0, 0},
                 {1, 0},
@@ -96,7 +96,7 @@ Shape::Shape(Piece type)
         // ／(^ㅅ^)＼ Line
         case LINE:
         {
-            color = {0, 255, 0};
+            color = 0xFF7B31;
             shape = new Square[4] {
                 {-2,1},
                 {-1,1},
@@ -111,7 +111,7 @@ Shape::Shape(Piece type)
         // ／(^ㅅ^)＼ J
         case J:
         {
-            color = {0, 255, 255};
+            color = 0x00EEFF;
             shape = new Square[4] {
                 {0, 0},
                 {1, 0},
@@ -123,7 +123,7 @@ Shape::Shape(Piece type)
         // ／(^ㅅ^)＼ L
         case L:
         {
-            color = {255, 0, 0};
+            color = 0xFF0000;
             shape = new Square[4]{
                 {0, 0},
                 {1, 0},
@@ -135,7 +135,7 @@ Shape::Shape(Piece type)
         // ／(^ㅅ^)＼ Z
         case Z:
         {
-            color = {255, 0, 255};
+            color = 0xFFA508;
             shape = new Square[4] {
                 {-1, -1},
                 {0, -1},
@@ -147,7 +147,7 @@ Shape::Shape(Piece type)
         // ／(^ㅅ^)＼ S
         case S:
         {
-            color = {255, 255, 0};
+            color = 0xFF00FF;
             shape = new Square[4] {
                 {-1, 0},
                 {0, 0},
@@ -159,7 +159,7 @@ Shape::Shape(Piece type)
         // ／(^ㅅ^)＼ T
         case T:
         {
-            color = {255, 255, 255};
+            color = 0x69FF69;
             shape = new Square[4] {
                 {-1, 0},
                 {0, 0},
