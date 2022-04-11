@@ -106,6 +106,8 @@ private:
     int level = 1;
     int timeLeft = 0;
     bool fastFall = false;
+    bool locked = false;
+    void lockPiece() { timeLeft = 500/DELAY; locked = true; }
     // dropDelay is in terms of DELAY increments.
     int dropDelay() const {
         return pow(0.8-(level-1)*0.007,level-1)*1000/DELAY;

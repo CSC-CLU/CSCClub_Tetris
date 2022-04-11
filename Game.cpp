@@ -136,6 +136,7 @@ void Game::processInput()
             case SDL_KEYDOWN:
                 if(held) break; else held = true;
                 // interact with our piece
+                // break locks, continue does not.
                 switch (evnt.key.keysym.scancode) {
                     case SDL_SCANCODE_W:
                         curShape->y--;
@@ -178,8 +179,11 @@ void Game::processInput()
                         break;
                     case SDL_SCANCODE_DELETE:
                         loadNewShape();
-                        break;
+                        continue;
+                    default:
+                        continue;
                 }
+                lockPiece();
                 //std::cout << evnt.key.keysym.scancode << std::endl;
         }
     }
@@ -195,10 +199,23 @@ void Game::gameLoop()
         SDL_Delay(DELAY);
         processInput();
         if(gameState == GameState::EXIT) break;
-        if(fastFall) timeLeft--;
-        if(timeLeft-- <= 0) {
-            moveCurShapeDown();
-            timeLeft = dropDelay();
+        if(fastFall || timeLeft-- <= 0) {
+            if(!curShape->moveDown()) {
+                fastFall = false;
+                if(locked) {
+                    locked = false;
+                    placeShape();
+                }
+                else
+                {
+                    lockPiece();
+                }
+            }
+            else
+            {
+                timeLeft = dropDelay();
+                locked = false;
+            }
         }
     }
 }
