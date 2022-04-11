@@ -32,7 +32,7 @@ struct Shape
 
     RGB color;
 
-    enum Piece { SQUARE, LINE, J, L, Z, S, T };
+    enum Piece { O, I, J, L, Z, S, T };
     static constexpr int N_SQUARES = 4;
 
     // necessary offset for the shape to get rendered in the grid
