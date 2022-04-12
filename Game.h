@@ -79,6 +79,7 @@ public:
         {
             grid[i][y] = RGB();
         }
+        if(--toNextLevel == 0) incLevel();
         return true;
     }
 
@@ -104,6 +105,9 @@ private:
     void gameLoop();
     // timer logic
     int level = 1;
+    static constexpr int8_t LEVEL_CLEAR = 10;
+    int toNextLevel = LEVEL_CLEAR;
+    void incLevel();
     int timeLeft = 0;
     bool fastFall = false;
     bool locked = false;

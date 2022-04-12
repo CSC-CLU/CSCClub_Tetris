@@ -88,6 +88,11 @@ bool Game::moveCurShapeDown() {
     return false;
 }
 
+void Game::incLevel() {
+    std::cout << "level: " << ++level << " --- speed=" << dropDelay() << std::endl;
+    toNextLevel = LEVEL_CLEAR;
+}
+
 void Game::placeShape() {
     Shape& s = *curShape;
     for(int i=0; i < Shape::N_SQUARES; i++) {
@@ -129,7 +134,7 @@ void Game::processInput()
             case SDL_KEYUP:
                 if(fastFall && evnt.key.keysym.scancode == SDL_SCANCODE_S) {
                     fastFall = false;
-                    std::cout << "fast fall off" << std::endl;
+                    //std::cout << "fast fall off" << std::endl;
                 }
                 held = false;
                 break;
@@ -144,7 +149,7 @@ void Game::processInput()
                     case SDL_SCANCODE_S:
                         fastFall = true;
                         timeLeft = 0;
-                        std::cout << "fast fall on" << std::endl;
+                        //std::cout << "fast fall on" << std::endl;
                         continue; // already reset timer.
                     case SDL_SCANCODE_A:
                         curShape->moveL();
