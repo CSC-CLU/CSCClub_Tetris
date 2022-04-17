@@ -79,7 +79,7 @@ void Game::loadNewShape() {
     delete curShape;
     curShape = nxtShape;
     curShape->setPos(curShape->getStartingPos());
-    nxtShape = new Shape();
+    nxtShape = new Shape(bag.draw());
 }
 
 bool Game::moveCurShapeDown() {
@@ -153,7 +153,7 @@ void Game::processInput()
                     case SDL_SCANCODE_E:
                         curShape->rotateR();
                         break;
-                    // worth noting this cycles next, so if you want it to start cycling you need to do it twice.
+                    // worth noting this cycles draw, so if you want it to start cycling you need to do it twice.
                     case SDL_SCANCODE_RIGHT:
                         loadNewShape();
                         nxtShape = cyclePiece(+1);
