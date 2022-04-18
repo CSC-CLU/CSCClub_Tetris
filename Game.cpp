@@ -88,6 +88,11 @@ bool Game::moveCurShapeDown() {
     return false;
 }
 
+void Game::incLevel() {
+    std::cout << "level: " << ++level << " (speed = " << DELAY/(time = dropDelay()) << "G/" << dropDelay() << "ms)" << std::endl;
+    toNextLevel = LEVEL_CLEAR;
+}
+
 void Game::placeShape() {
     Shape& s = *curShape;
     for(int i=0; i < Shape::N_SQUARES; i++) {
@@ -116,7 +121,6 @@ void Game::processInput()
                     case SDL_WINDOWEVENT_RESIZED:
                         screenWidth = evnt.window.data1;
                         screenHeight = evnt.window.data2;
-                        prepareScene();
                         break;
                 };
                 break;
@@ -128,19 +132,26 @@ void Game::processInput()
 //                std::cout << evnt.motion.x << " " << evnt.motion.y << std::endl;
 //                break;
             case SDL_KEYUP:
+                if(fastFall && evnt.key.keysym.scancode == SDL_SCANCODE_S) {
+                    fastFall = false;
+                    time = dropDelay();
+                    //std::cout << "fast fall off" << std::endl;
+                }
                 held = false;
                 break;
             case SDL_KEYDOWN:
                 if(held) break; else held = true;
                 // interact with our piece
+                // break locks, continue does not.
                 switch (evnt.key.keysym.scancode) {
                     case SDL_SCANCODE_W:
                         curShape->y--;
                         break;
                     case SDL_SCANCODE_S:
-                        // this will end up being the impact
-                        moveCurShapeDown();
-                        break;
+                        fastFall = true;
+                        time = dropDelay();
+                        //std::cout << "fast fall on" << std::endl;
+                        continue; // already reset timer.
                     case SDL_SCANCODE_A:
                         curShape->moveL();
                         break;
@@ -152,6 +163,12 @@ void Game::processInput()
                         break;
                     case SDL_SCANCODE_E:
                         curShape->rotateR();
+                        break;
+                    case SDL_SCANCODE_EQUALS:
+                        incLevel();
+                        break;
+                    case SDL_SCANCODE_MINUS:
+                        std::cout << "level: " << --level << " --- speed=" << (time = dropDelay()) << std::endl;
                         break;
                     // worth noting this cycles next, so if you want it to start cycling you need to do it twice.
                     case SDL_SCANCODE_RIGHT:
@@ -168,11 +185,12 @@ void Game::processInput()
                         break;
                     case SDL_SCANCODE_DELETE:
                         loadNewShape();
-                        break;
+                        continue;
+                    default:
+                        continue;
                 }
-                prepareScene();
-                std::cout << evnt.key.keysym.scancode << std::endl;
-
+                lockPiece();
+                //std::cout << evnt.key.keysym.scancode << std::endl;
         }
     }
 }
@@ -180,11 +198,39 @@ void Game::processInput()
 void Game::gameLoop()
 {
     loadNewShape();
-    prepareScene();
-    while (gameState != GameState::EXIT)
+    incLevel();
+    while (true)
     {
-        processInput();
+        prepareScene();
         presentScene();
-        SDL_Delay(16);
+        SDL_Delay(DELAY);
+        processInput();
+        if(gameState == GameState::EXIT) break;
+        applyGravity();
+    }
+}
+void Game::applyGravity()
+{
+    time -= DELAY;
+    while(time <= 0) {
+        if(curShape->moveDown()) {
+            time += dropDelay();
+            locked = false;
+        } else {
+            // shape cannot move down anymore.
+            fastFall = false;
+            if(locked) {
+                // lock delay has been spent, place the shape.
+                locked = false;
+                placeShape();
+                // return to standard drop delay
+                time = dropDelay();
+            }
+            else
+            {
+                // this prevents the shape from being placed instantly, allowing the player to quickly move it before it places.
+                lockPiece();
+            }
+        }
     }
 }
