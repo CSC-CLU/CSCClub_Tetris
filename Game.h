@@ -99,23 +99,29 @@ private:
     void prepareScene(RGB={255/3,255/3,255/3});
     void presentScene();
     // control logic (game.cpp)
+    // time (ms) game waits between renders. Also the value of 1G.
     constexpr static uint32_t DELAY = 16;
     void initSystems();
     void processInput();
     void gameLoop();
     // timer logic
-    int level = 1;
+    int level = 0; // initialized when game starts
     static constexpr int8_t LEVEL_CLEAR = 10;
     int toNextLevel = LEVEL_CLEAR;
     void incLevel();
-    int timeLeft = 0;
+    // timer until a piece drops via gravity
+    double time;
     bool fastFall = false;
     bool locked = false;
-    void lockPiece() { timeLeft = 500/DELAY; locked = true; }
-    // dropDelay is in terms of DELAY increments.
-    int dropDelay() const {
-        return pow(0.8-(level-1)*0.007,level-1)*1000/DELAY;
+    void lockPiece() { time = 500; locked = true; }
+    // delay to next fall, in ms.
+    double dropDelay() const {
+        return
+            fastFall ? DELAY // fastfall speed
+            : pow(0.8-(level-1)*0.007,level-1)*1000; // standard speed
     };
+    // fall logic
+    void applyGravity();
 };
 
 

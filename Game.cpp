@@ -89,7 +89,7 @@ bool Game::moveCurShapeDown() {
 }
 
 void Game::incLevel() {
-    std::cout << "level: " << ++level << " --- speed=" << dropDelay() << std::endl;
+    std::cout << "level: " << ++level << " (speed = " << DELAY/(time = dropDelay()) << "G/" << dropDelay() << "ms)" << std::endl;
     toNextLevel = LEVEL_CLEAR;
 }
 
@@ -134,6 +134,7 @@ void Game::processInput()
             case SDL_KEYUP:
                 if(fastFall && evnt.key.keysym.scancode == SDL_SCANCODE_S) {
                     fastFall = false;
+                    time = dropDelay();
                     //std::cout << "fast fall off" << std::endl;
                 }
                 held = false;
@@ -148,7 +149,7 @@ void Game::processInput()
                         break;
                     case SDL_SCANCODE_S:
                         fastFall = true;
-                        timeLeft = 0;
+                        time = dropDelay();
                         //std::cout << "fast fall on" << std::endl;
                         continue; // already reset timer.
                     case SDL_SCANCODE_A:
@@ -164,10 +165,10 @@ void Game::processInput()
                         curShape->rotateR();
                         break;
                     case SDL_SCANCODE_EQUALS:
-                        std::cout << "level: " << ++level << " --- speed=" << dropDelay() << std::endl;
+                        incLevel();
                         break;
                     case SDL_SCANCODE_MINUS:
-                        std::cout << "level: " << --level << " --- speed=" << dropDelay() << std::endl;
+                        std::cout << "level: " << --level << " --- speed=" << (time = dropDelay()) << std::endl;
                         break;
                     // worth noting this cycles next, so if you want it to start cycling you need to do it twice.
                     case SDL_SCANCODE_RIGHT:
@@ -197,6 +198,7 @@ void Game::processInput()
 void Game::gameLoop()
 {
     loadNewShape();
+    incLevel();
     while (true)
     {
         prepareScene();
@@ -204,22 +206,30 @@ void Game::gameLoop()
         SDL_Delay(DELAY);
         processInput();
         if(gameState == GameState::EXIT) break;
-        if(fastFall || timeLeft-- <= 0) {
-            if(!curShape->moveDown()) {
-                fastFall = false;
-                if(locked) {
-                    locked = false;
-                    placeShape();
-                }
-                else
-                {
-                    lockPiece();
-                }
+        applyGravity();
+    }
+}
+void Game::applyGravity()
+{
+    time -= DELAY;
+    while(time <= 0) {
+        if(curShape->moveDown()) {
+            time += dropDelay();
+            locked = false;
+        } else {
+            // shape cannot move down anymore.
+            fastFall = false;
+            if(locked) {
+                // lock delay has been spent, place the shape.
+                locked = false;
+                placeShape();
+                // return to standard drop delay
+                time = dropDelay();
             }
             else
             {
-                timeLeft = dropDelay();
-                locked = false;
+                // this prevents the shape from being placed instantly, allowing the player to quickly move it before it places.
+                lockPiece();
             }
         }
     }
