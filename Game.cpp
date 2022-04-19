@@ -136,6 +136,11 @@ void Game::play() {
     loadNewShape();
 }
 
+struct {
+    int move=0, rotate=0;
+    bool instantDrop=false,fastDrop=false;
+} cur, prev;
+
 bool held = true; // press a button to start the game.
 void Game::processInput()
 {
@@ -232,12 +237,26 @@ void Game::processInput()
                 //std::cout << evnt.key.keysym.scancode << std::endl;
         }
     }
-    bool lock;
-    lock = curShape->move(pc->moveLeft - (int)pc->moveRight);
-    lock = curShape->rotate(pc->rotateLeft - (int)pc->rotateRight) || lock;
-    lock &= !(pc->fastDrop && pc->instantDrop);
-    toggleFastDrop(pc->fastDrop);
-    if(pc->instantDrop) instantDrop();
+    // ARDUINO CONTROLS
+    prev = cur;
+    cur = {
+            pc->moveLeft - (int)pc->moveRight,
+            pc->rotateLeft - (int)pc->rotateRight,
+            pc->instantDrop,
+            pc->fastDrop
+    };
+    bool lock = false;
+    if(cur.move != prev.move) lock = curShape->move(cur.move);
+    if(cur.rotate != prev.rotate) lock = curShape-> rotate(cur.rotate) || lock;
+    // true only if
+    if(cur.fastDrop != prev.fastDrop) {
+        lock = false;
+        toggleFastDrop(cur.fastDrop);
+    }
+    if(cur.instantDrop && !prev.instantDrop) {
+        lock = false;
+        instantDrop();
+    }
     if(lock) lockPiece();
 }
 
