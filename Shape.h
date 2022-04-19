@@ -32,7 +32,7 @@ struct Shape
     RGB color;
 
     enum Piece { NONE=-1,
-            SQUARE, LINE, J, L, Z, S, T,
+            O, I, J, L, Z, S, T,
             // allows iteration
             SIZE
     } piece = NONE;

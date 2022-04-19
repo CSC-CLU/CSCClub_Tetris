@@ -99,7 +99,7 @@ void Game::holdShape() {
 void Game::loadNewShape() {
     holdUsed = false;
     setCurShape(nxtShape);
-    nxtShape = new Shape();
+    nxtShape = new Shape(bag.draw());
 }
 
 bool Game::moveCurShapeDown() {
@@ -193,7 +193,7 @@ void Game::processInput()
                     case SDL_SCANCODE_MINUS:
                         std::cout << "level: " << --level << " --- speed=" << (time = dropDelay()) << std::endl;
                         break;
-                        // worth noting this cycles next, so if you want it to start cycling you need to do it twice.
+                        // worth noting this cycles draw, so if you want it to start cycling you need to do it twice.
                     case SDL_SCANCODE_RIGHT:
                         loadNewShape();
                         nxtShape = cyclePiece(+1);

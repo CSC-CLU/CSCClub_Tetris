@@ -10,6 +10,7 @@
 #include<cmath>
 #include "Shape.h"
 #include "Utilities.h"
+#include "Bag.h"
 
 enum class GameState
 {
@@ -56,8 +57,9 @@ public:
 
     bool clearRow(int y);
 private:
+    Bag bag; // for drawing pieces
     // shape logic
-    Shape *nxtShape=new Shape(),*curShape = nullptr, *heldShape = nullptr;
+    Shape *nxtShape=new Shape(bag.draw()),*curShape = nullptr, *heldShape = nullptr;
     void loadNewShape();
     void setCurShape(Shape*);
     void holdShape();
