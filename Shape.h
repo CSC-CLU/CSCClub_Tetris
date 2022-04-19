@@ -44,8 +44,8 @@ struct Shape
     bool rotateL() { return rotate(-1, 1); }
 
     bool moveDown() { return move(0,1); }
-    bool moveR() { return move(1); }
-    bool moveL() { return move(-1); }
+    bool moveR() { return move(1,0); }
+    bool moveL() { return move(-1,0); }
 
     void setPos(int x, int y) {
         this->x = x;
@@ -66,6 +66,13 @@ struct Shape
         delete shape;
     }
 
+    // moves horizontally according to a direction. 0 does nothing and returns false
+    constexpr bool move(int dx)
+    { return dx != 0 && move(dx,0); }
+    // rotates according to a direction. 0 does nothing and returns false.
+    constexpr bool rotate(int dir)
+    { return dir != 0 && rotate(dir, -dir); }
+
 private:
     static bool isInvalidPosition(int x, int y);
     bool isInvalidPosition(Square s) const
@@ -77,7 +84,7 @@ private:
         return false;
     }
 
-    bool move(int x,int y=0);
+    bool move(int x,int y);
     bool rotate(int x, int y, bool=false);
 
     int nRotation = 0;

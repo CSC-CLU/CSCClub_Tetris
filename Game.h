@@ -61,6 +61,7 @@ private:
     void loadNewShape();
     void placeShape();
     bool moveCurShapeDown();
+    void instantDrop() { while(moveCurShapeDown()); }
     // FIXME perhaps this sort of logic should go into Display? Would require a rather deep refactor though.
     // render methods (scene.cpp)
     void drawShape(const Shape&);
@@ -84,6 +85,13 @@ private:
     // timer until a piece drops via gravity
     double time;
     bool fastFall = false;
+    constexpr void toggleFastDrop(bool enable)
+    {
+        if(fastFall != enable) {
+            fastFall = enable;
+            time = dropDelay();
+        }
+    }
     bool locked = false;
     void lockPiece() { time = 500; locked = true; }
     // delay to next fall, in ms.
