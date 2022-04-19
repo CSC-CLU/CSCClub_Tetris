@@ -46,7 +46,7 @@ Shape::Piece randomPiece()
 {
     // stack overflow said to use this.
     auto random(std::mt19937(std::chrono::steady_clock::now().time_since_epoch().count()));
-    std::uniform_int_distribution<int> distribution(Shape::Piece::SQUARE,Shape::Piece::T);
+    std::uniform_int_distribution<int> distribution(Shape::Piece::O, Shape::Piece::T);
     return static_cast<Shape::Piece>(distribution(random));
 }
 Shape::Shape()
@@ -66,8 +66,8 @@ Shape::Square Shape::getStartingPos() const {
 }
 
 // COLOR PATTERN
-// 001 SQUARE
-// 010 LINE
+// 001 O
+// 010 I
 // 011 J
 // 100 L
 // 101 Z
@@ -80,14 +80,14 @@ Shape::Shape(Piece type)
     switch(type)
     {
         // ／(^ㅅ^)＼ Square
-        case SQUARE:
+        case O:
         {
             color = 0xFFFF00;
             nRotations = 1;
             break;
         }
         // ／(^ㅅ^)＼ Line
-        case LINE:
+        case I:
         {
             color = 0xFF7B31;
             nRotations = 4;
