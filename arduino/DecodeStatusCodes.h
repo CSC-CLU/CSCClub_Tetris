@@ -10,26 +10,37 @@
 
 #include <iostream>
 
-using namespace std;
+namespace arduino {
+    using namespace std;
 
-class DecodeStatusCodes
-{
-public:
-    DecodeStatusCodes();
-    DecodeStatusCodes(bool mode);
-    ~DecodeStatusCodes();
+    class DecodeStatusCodes {
+    public:
+        DecodeStatusCodes();
 
-    bool flushReceiver(char code);
-    bool openDevice(char code);
-    bool readBytes(int code);
-    bool readChar(char code);
-    bool readString(int code);
-    bool writeBytes(char code);
-    bool writeChar(char code);
-    bool writeString(char code);
-private:
-    bool showSuccess;
-};
+        DecodeStatusCodes(bool mode);
+
+        ~DecodeStatusCodes();
+
+        bool flushReceiver(char code);
+
+        bool openDevice(char code);
+
+        bool readBytes(int code);
+
+        bool readChar(char code);
+
+        bool readString(int code);
+
+        bool writeBytes(char code);
+
+        bool writeChar(char code);
+
+        bool writeString(char code);
+
+    private:
+        bool showSuccess;
+    };
+}
 
 DecodeStatusCodes::DecodeStatusCodes() {showSuccess = true;}
 DecodeStatusCodes::DecodeStatusCodes(bool showSuccess)
