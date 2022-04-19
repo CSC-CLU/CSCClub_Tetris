@@ -70,6 +70,13 @@ struct Shape
         delete shape;
     }
 
+    bool isInvalidState()
+    {
+        for(int i=0; i < N_SQUARES; i++)
+            if(isInvalidPosition(shape[i])) return true;
+        return false;
+    }
+
 private:
     // necessary offset for the shape to get rendered in the grid
     Square getStartingPos() const;
@@ -77,12 +84,6 @@ private:
     static bool isInvalidPosition(int x, int y);
     bool isInvalidPosition(Square s) const
     { return isInvalidPosition(s.x+x,s.y+y); }
-    bool isInvalidState()
-    {
-        for(int i=0; i < N_SQUARES; i++)
-            if(isInvalidPosition(shape[i])) return true;
-        return false;
-    }
 
     bool move(int x,int y=0);
     bool rotate(int x, int y, bool=false);

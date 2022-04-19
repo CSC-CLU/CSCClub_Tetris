@@ -28,15 +28,17 @@ void Game::renderPreview(int offset, Shape* shape) {
 
 void Game::prepareScene(RGB backgroundColor)
 {
+    if(gameState != GameState::PLAY)
+        backgroundColor = backgroundColor.hex()/2;
     SDL_SetRenderDrawColor(this->renderer, backgroundColor.r, backgroundColor.g, backgroundColor.b, 255);
     SDL_RenderClear(this->renderer);
     // render grid
     for(int x=0; x < COLS; x++) for(int y=0; y < ROWS; y++) {
-            drawSquare(x,y,grid[x][y]);
-        }
+        drawSquare(x,y,grid[x][y]);
+    }
     renderPreview(-PREVIEW_SIZE-PADDING, nxtShape); // next piece on left
     renderPreview(COLS+PADDING, heldShape); // hold piece on right
-    drawShape(*curShape);
+    if(curShape != nullptr) drawShape(*curShape);
 }
 
 // x and y correspond to grid tiles.
