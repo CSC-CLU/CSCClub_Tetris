@@ -31,11 +31,12 @@ struct Shape
 
     RGB color;
 
-    enum Piece { O, I, J, L, Z, S, T };
+    enum Piece { NONE=-1,
+            O, I, J, L, Z, S, T,
+            // allows iteration
+            SIZE
+    } piece = NONE;
     static constexpr int N_SQUARES = 4;
-
-    // necessary offset for the shape to get rendered in the grid
-    Square getStartingPos() const;
 
     Shape(Piece);
     Shape();
@@ -47,9 +48,12 @@ struct Shape
     bool moveR() { return move(1); }
     bool moveL() { return move(-1); }
 
-    void setPos(int x, int y) {
-        this->x = x;
-        this->y = y;
+    // sets position where x,y is the position of the top left tile.
+
+    void setPos(int x, int y=0) {
+        auto start = getStartingPos();
+        this->x = start.x + x;
+        this->y = start.y + y;
     }
     void setPos(Square s) { setPos(s.x,s.y); }
 
@@ -74,6 +78,9 @@ struct Shape
     }
 
 private:
+    // necessary offset for the shape to get rendered in the grid
+    Square getStartingPos() const;
+
     static bool isInvalidPosition(int x, int y);
     bool isInvalidPosition(Square s) const
     { return isInvalidPosition(s.x+x,s.y+y); }

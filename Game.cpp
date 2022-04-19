@@ -75,14 +75,33 @@ Shape* cyclePiece(int inc) {
     return new Shape(static_cast<Shape::Piece>(curPiece));
 }
 
-void Game::loadNewShape() {
-    nxtShape->setPos(nxtShape->getStartingPos());
-    if(nxtShape->isInvalidState()) {
+void Game::setCurShape(Shape *shape) {
+    // todo it might be nice to make curShape a reference rather than a pointer, but it would require either a getter method that autocalls this one or more delicate handling of the curShape variable to ensure it never holds a null pointer.
+    shape->setPos(COLS/2);
+    if(shape->isInvalidState()) {
         gameState = GameState::GAME_OVER;
         return; // terminate logic
     }
     delete curShape;
-    curShape = nxtShape;
+    curShape = shape;
+}
+
+bool holdUsed = false;
+void Game::holdShape() {
+    if(holdUsed) return;
+    auto tmp = heldShape;
+    heldShape = new Shape(curShape->piece);
+    if(tmp == nullptr) {
+        loadNewShape();
+    } else {
+        holdUsed = true;
+        setCurShape(tmp);
+    }
+}
+
+void Game::loadNewShape() {
+    holdUsed = false;
+    setCurShape(nxtShape);
     nxtShape = new Shape(bag.draw());
 }
 
@@ -193,13 +212,16 @@ void Game::processInput()
                     case SDL_SCANCODE_E:
                         curShape->rotateR();
                         break;
+                    case SDL_SCANCODE_TAB:
+                        holdShape();
+                        break;
                     case SDL_SCANCODE_EQUALS:
                         incLevel();
                         break;
                     case SDL_SCANCODE_MINUS:
                         std::cout << "level: " << --level << " --- speed=" << (time = dropDelay()) << std::endl;
                         break;
-                    // worth noting this cycles draw, so if you want it to start cycling you need to do it twice.
+                        // worth noting this cycles draw, so if you want it to start cycling you need to do it twice.
                     case SDL_SCANCODE_RIGHT:
                         loadNewShape();
                         nxtShape = cyclePiece(+1);

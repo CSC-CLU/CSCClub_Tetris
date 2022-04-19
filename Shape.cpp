@@ -6,7 +6,7 @@
 #include <chrono>
 #include "Shape.h"
 
-constexpr static Shape::Square ROTATIONS[2/*Piece*/][/*Rotation*/4][Shape::N_SQUARES] = {
+constexpr static Shape::Square ROTATIONS[Shape::Piece::SIZE/*Piece*/][/*Rotation*/4][Shape::N_SQUARES] = {
     {
         {
             {0, 0},
@@ -75,6 +75,7 @@ Shape::Square Shape::getStartingPos() const {
 // 111 Ts
 
 Shape::Shape(Piece type)
+: piece(type)
 {
     // define either a set number of rotations that are manually defined, or the initial shape
     switch(type)
