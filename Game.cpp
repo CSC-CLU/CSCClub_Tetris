@@ -5,6 +5,7 @@
 #include "Game.h"
 #include <SDL2/SDL.h>
 #include <iostream>
+#include "arduino/controller.h"
 
 void fatalError(std::string errorString)
 {
@@ -16,6 +17,7 @@ void fatalError(std::string errorString)
 }
 
 const Game* gameInstance;
+arduino::ArduinoController* pc;
 Game::Game(int screenWidth, int screenHeight)
 : window(nullptr)
 , screenWidth(screenWidth)
@@ -23,6 +25,7 @@ Game::Game(int screenWidth, int screenHeight)
 , gameState(GameState::START)
 {
     gameInstance = this;
+    pc = new arduino::ArduinoController();
 }
 
 // sigh...
@@ -159,9 +162,8 @@ void Game::processInput()
             case SDL_KEYUP:
                 held = false;
                 if(gameState != GameState::PLAY) break;
-                if(fastFall && evnt.key.keysym.scancode == SDL_SCANCODE_S) {
-                    fastFall = false;
-                    time = dropDelay();
+                if(evnt.key.keysym.scancode == SDL_SCANCODE_S) {
+                    toggleFastDrop(false);
                     //std::cout << "fast fall off" << std::endl;
                 }
                 break;
@@ -181,8 +183,7 @@ void Game::processInput()
                         curShape->y--;
                         break;
                     case SDL_SCANCODE_S:
-                        fastFall = true;
-                        resetTime = true;
+                        toggleFastDrop(true);
                         //std::cout << "fast fall on" << std::endl;
                         break; // already reset timer.
                     case SDL_SCANCODE_A:
@@ -227,9 +228,17 @@ void Game::processInput()
                         continue;
                 }
                 if(resetTime) time = dropDelay();
+                return; // don't check arduino
                 //std::cout << evnt.key.keysym.scancode << std::endl;
         }
     }
+    bool lock;
+    lock = curShape->move(pc->moveLeft - (int)pc->moveRight);
+    lock = curShape->rotate(pc->rotateLeft - (int)pc->rotateRight) || lock;
+    lock &= !(pc->fastDrop && pc->instantDrop);
+    toggleFastDrop(pc->fastDrop);
+    if(pc->instantDrop) instantDrop();
+    if(lock) lockPiece();
 }
 
 // ／(^ㅅ^)＼ Checks if a given row y is complete
@@ -283,6 +292,7 @@ void Game::gameLoop()
         prepareScene();
         presentScene();
         SDL_Delay(DELAY);
+        pc->refreshArduinoStatus();
         processInput();
         if(gameState == GameState::EXIT) break;
         if(gameState == GameState::PLAY) applyGravity();

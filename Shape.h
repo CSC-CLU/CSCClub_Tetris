@@ -45,8 +45,8 @@ struct Shape
     bool rotateL() { return rotate(-1, 1); }
 
     bool moveDown() { return move(0,1); }
-    bool moveR() { return move(1); }
-    bool moveL() { return move(-1); }
+    bool moveR() { return move(1,0); }
+    bool moveL() { return move(-1,0); }
 
     // sets position where x,y is the position of the top left tile.
 
@@ -70,6 +70,13 @@ struct Shape
         delete shape;
     }
 
+    // moves horizontally according to a direction. 0 does nothing and returns false
+    constexpr bool move(int dx)
+    { return dx != 0 && move(dx,0); }
+    // rotates according to a direction. 0 does nothing and returns false.
+    constexpr bool rotate(int dir)
+    { return dir != 0 && rotate(dir, -dir); }
+
     bool isInvalidState()
     {
         for(int i=0; i < N_SQUARES; i++)
@@ -85,7 +92,7 @@ private:
     bool isInvalidPosition(Square s) const
     { return isInvalidPosition(s.x+x,s.y+y); }
 
-    bool move(int x,int y=0);
+    bool move(int x,int y);
     bool rotate(int x, int y, bool=false);
 
     int nRotation = 0;
