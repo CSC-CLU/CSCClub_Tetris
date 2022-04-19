@@ -6,16 +6,15 @@
 #include <chrono>
 #include "Shape.h"
 
-constexpr static int
-squareRotations[1][4][2] = {
+constexpr static Shape::Square ROTATIONS[2/*Piece*/][/*Rotation*/4][Shape::N_SQUARES] = {
+    {
         {
             {0, 0},
             {1, 0},
             {0, 1},
             {1, 1}
         }
-},
-lineRotations[4][4][2] = {
+    },{
         {
             {-2,0},
             {-1,0},
@@ -40,6 +39,7 @@ lineRotations[4][4][2] = {
             {-1,0},
             {-1,1}
         },
+    }
 };
 
 Shape::Piece randomPiece()
@@ -76,36 +76,21 @@ Shape::Square Shape::getStartingPos() const {
 
 Shape::Shape(Piece type)
 {
+    // define either a set number of rotations that are manually defined, or the initial shape
     switch(type)
     {
         // ／(^ㅅ^)＼ Square
         case SQUARE:
         {
             color = 0xFFFF00;
-            shape = new Square[4] {
-                {0, 0},
-                {1, 0},
-                {0, 1},
-                {1, 1},
-            };
             nRotations = 1;
-            for (int r=0; r < nRotations; r++) for (int s=0; s < N_SQUARES; s++) for (int c=0; c < 2; c++)
-                rotations[r][s][c] = squareRotations[r][s][c];
             break;
         }
         // ／(^ㅅ^)＼ Line
         case LINE:
         {
             color = 0xFF7B31;
-            shape = new Square[4] {
-                {-2,1},
-                {-1,1},
-                {0,1},
-                {1,1},
-            };
             nRotations = 4;
-            for(int r = 0; r < nRotations; r++) for(int s = 0; s < N_SQUARES; s++) for(int c = 0; c < 2; c++)
-                rotations[r][s][c] = lineRotations[r][s][c];
             break;
         }
         // ／(^ㅅ^)＼ J
@@ -167,6 +152,17 @@ Shape::Shape(Piece type)
                 {1, 0},
             };
             break;
+        }
+    }
+    if(nRotations > 0) {
+        shape = new Square[4];
+        for(int r = 0; r < nRotations; r++)
+        {
+            for(int s = 0; s < N_SQUARES; s++)
+            {
+                rotations[r][s] = ROTATIONS[type][r][s];
+                if(r == 0) shape[s] = rotations[r][s];
+            }
         }
     }
 }

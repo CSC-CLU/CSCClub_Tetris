@@ -17,10 +17,9 @@ struct Shape
 {
     struct Square
     {
-        int x, y;
-
-        Square(int x, int y): x(x), y(y) {};
-        Square(int c[2]): Square(c[0], c[1]) {}
+        int x=0, y=0;
+        constexpr Square() = default;
+        constexpr Square(int x, int y): x(x), y(y) {};
     };
 
     // x and y correspond to the pivot point
@@ -84,6 +83,6 @@ private:
     int nRotation = 0;
     int nRotations = 0;
     // maximum size for a rotation
-    int rotations[4][4][2];
+    Square rotations[4][4];
 };
 #endif //CSCCLUB_TETRIS_SHAPE_H
