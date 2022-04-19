@@ -31,7 +31,11 @@ struct Shape
 
     RGB color;
 
-    enum Piece { SQUARE, LINE, J, L, Z, S, T };
+    enum Piece { NONE=-1,
+            SQUARE, LINE, J, L, Z, S, T,
+            // allows iteration
+            SIZE
+    } piece = NONE;
     static constexpr int N_SQUARES = 4;
 
     Shape(Piece);

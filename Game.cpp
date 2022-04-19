@@ -83,7 +83,21 @@ void Game::setCurShape(Shape *shape) {
     curShape->setPos(COLS/2); // move to center
 }
 
+bool holdUsed = false;
+void Game::holdShape() {
+    if(holdUsed) return;
+    auto tmp = heldShape;
+    heldShape = new Shape(curShape->piece);
+    if(tmp == nullptr) {
+        loadNewShape();
+    } else {
+        holdUsed = true;
+        setCurShape(tmp);
+    }
+}
+
 void Game::loadNewShape() {
+    holdUsed = false;
     setCurShape(nxtShape);
     nxtShape = new Shape();
 }
@@ -170,13 +184,16 @@ void Game::processInput()
                     case SDL_SCANCODE_E:
                         curShape->rotateR();
                         break;
+                    case SDL_SCANCODE_TAB:
+                        holdShape();
+                        break;
                     case SDL_SCANCODE_EQUALS:
                         incLevel();
                         break;
                     case SDL_SCANCODE_MINUS:
                         std::cout << "level: " << --level << " --- speed=" << (time = dropDelay()) << std::endl;
                         break;
-                    // worth noting this cycles next, so if you want it to start cycling you need to do it twice.
+                        // worth noting this cycles next, so if you want it to start cycling you need to do it twice.
                     case SDL_SCANCODE_RIGHT:
                         loadNewShape();
                         nxtShape = cyclePiece(+1);
