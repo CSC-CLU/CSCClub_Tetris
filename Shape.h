@@ -66,16 +66,17 @@ struct Shape
         delete shape;
     }
 
-private:
-    static bool isInvalidPosition(int x, int y);
-    bool isInvalidPosition(Square s) const
-    { return isInvalidPosition(s.x+x,s.y+y); }
     bool isInvalidState()
     {
         for(int i=0; i < N_SQUARES; i++)
             if(isInvalidPosition(shape[i])) return true;
         return false;
     }
+
+private:
+    static bool isInvalidPosition(int x, int y);
+    bool isInvalidPosition(Square s) const
+    { return isInvalidPosition(s.x+x,s.y+y); }
 
     bool move(int x,int y=0);
     bool rotate(int x, int y, bool=false);

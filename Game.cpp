@@ -20,7 +20,7 @@ Game::Game(int screenWidth, int screenHeight)
 : window(nullptr)
 , screenWidth(screenWidth)
 , screenHeight(screenHeight)
-, gameState(GameState::PLAY)
+, gameState(GameState::START)
 {
     gameInstance = this;
 }
@@ -76,9 +76,13 @@ Shape* cyclePiece(int inc) {
 }
 
 void Game::loadNewShape() {
+    nxtShape->setPos(nxtShape->getStartingPos());
+    if(nxtShape->isInvalidState()) {
+        gameState = GameState::GAME_OVER;
+        return; // terminate logic
+    }
     delete curShape;
     curShape = nxtShape;
-    curShape->setPos(curShape->getStartingPos());
     nxtShape = new Shape(bag.draw());
 }
 
@@ -108,6 +112,24 @@ void Game::placeShape() {
     loadNewShape();
 }
 
+void Game::play() {
+    if(gameState == GameState::GAME_OVER) {
+        for (auto &col: grid)
+            for (auto &cell: col)
+                cell = RGB();
+    }
+    gameState = GameState::PLAY;
+    level=0; incLevel();
+    bag = Bag(); // refresh the bag
+    // gravity logic
+    time = dropDelay();
+    fastFall = false;
+    locked = false;
+    delete nxtShape;
+    nxtShape = new Shape(bag.draw());
+    loadNewShape();
+}
+
 bool held = true; // press a button to start the game.
 void Game::processInput()
 {
@@ -132,15 +154,22 @@ void Game::processInput()
 //                std::cout << evnt.motion.x << " " << evnt.motion.y << std::endl;
 //                break;
             case SDL_KEYUP:
+                held = false;
+                if(gameState != GameState::PLAY) break;
                 if(fastFall && evnt.key.keysym.scancode == SDL_SCANCODE_S) {
                     fastFall = false;
                     time = dropDelay();
                     //std::cout << "fast fall off" << std::endl;
                 }
-                held = false;
                 break;
             case SDL_KEYDOWN:
                 if(held) break; else held = true;
+                if(gameState == GameState::START || gameState == GameState::GAME_OVER) {
+                    if(evnt.key.keysym.scancode == 40) {
+                        play();
+                    }
+                    return;
+                }
                 // interact with our piece
                 // break locks, continue does not.
                 switch (evnt.key.keysym.scancode) {
@@ -241,8 +270,6 @@ bool Game::clearRow(int y)
 
 void Game::gameLoop()
 {
-    loadNewShape();
-    incLevel();
     while (true)
     {
         prepareScene();
@@ -250,7 +277,7 @@ void Game::gameLoop()
         SDL_Delay(DELAY);
         processInput();
         if(gameState == GameState::EXIT) break;
-        applyGravity();
+        if(gameState == GameState::PLAY) applyGravity();
     }
 }
 void Game::applyGravity()

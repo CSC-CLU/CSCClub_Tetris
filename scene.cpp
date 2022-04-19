@@ -11,6 +11,8 @@ void Game::presentScene()
 
 void Game::prepareScene(RGB backgroundColor)
 {
+    if(gameState != GameState::PLAY)
+        backgroundColor = backgroundColor.hex()/2;
     SDL_SetRenderDrawColor(this->renderer, backgroundColor.r, backgroundColor.g, backgroundColor.b, 255);
     SDL_RenderClear(this->renderer);
     // render grid
@@ -27,11 +29,13 @@ void Game::prepareScene(RGB backgroundColor)
             drawSquare( i-previewOffset, j, previewColor);
         }
     }
-    drawShape(*curShape);
-    nxtShape->setPos(nxtShape->getStartingPos());
-    // offset it to fit inside the preview area.
-    nxtShape->x -= previewOffset;
-    drawShape(*nxtShape);
+    if(gameState != GameState::START) {
+        drawShape(*curShape);
+        nxtShape->setPos(nxtShape->getStartingPos());
+        // offset it to fit inside the preview area.
+        nxtShape->x -= previewOffset;
+        drawShape(*nxtShape);
+    }
 }
 
 // x and y correspond to grid tiles.
