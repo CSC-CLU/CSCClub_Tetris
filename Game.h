@@ -50,39 +50,11 @@ public:
 
     // the color of a specific tile on the grid
     RGB grid[COLS][ROWS];
-    bool rowComplete(int y) const {
-        for(int i = 0; i < COLS; i++)
-        {
-            if(grid[i][y] == RGB())
-            {
-                return false;
-            }
-        }
-        return true;
-    }
+    bool rowComplete(int y) const;
 
-    bool moveRows(int y)
-    {
-        for(int i = y; i > 0; i--)
-        {
-            for(int j = 0; j < COLS; j++)
-            {
-                grid[j][i] = grid[j][i - 1];
-            }
-        }
-        return clearRow(0);
-    }
+    bool moveRows(int y);
 
-    bool clearRow(int y)
-    {
-        for(int i = 0; i < COLS; i++)
-        {
-            grid[i][y] = RGB();
-        }
-        if(--toNextLevel == 0) incLevel();
-        return true;
-    }
-
+    bool clearRow(int y);
 private:
     // shape logic
     Shape *nxtShape=new Shape(),*curShape = nullptr;

@@ -195,6 +195,50 @@ void Game::processInput()
     }
 }
 
+// ／(^ㅅ^)＼ Checks if a given row y is complete
+bool Game::rowComplete(int y) const {
+    // ／(^ㅅ^)＼ Loop through columns in the row
+    for(int i = 0; i < COLS; i++)
+    {
+        // ／(^ㅅ^)＼ If a square in the row is equal to the default, the row is incomplete
+        if(grid[i][y] == RGB())
+        {
+            return false;
+        }
+    }
+    // ／(^ㅅ^)＼ If no squares in the row are equal to default, the row is complete
+    return true;
+}
+
+// ／(^ㅅ^)＼ Move all rows above y down a single row
+bool Game::moveRows(int y)
+{
+    // ／(^ㅅ^)＼ Loop from y to 1
+    for(int i = y; i > 0; i--)
+    {
+        // ／(^ㅅ^)＼ Move the row above to the current row
+        for(int j = 0; j < COLS; j++)
+        {
+            grid[j][i] = grid[j][i - 1];
+        }
+    }
+    // ／(^ㅅ^)＼ Clear row 0
+    return clearRow(0);
+}
+
+// ／(^ㅅ^)＼ Clears a given row y
+bool Game::clearRow(int y)
+{
+    // ／(^ㅅ^)＼ Loops through all columns in the row and sets each square to default
+    for(int i = 0; i < COLS; i++)
+    {
+        grid[i][y] = RGB();
+    }
+    // ／(^ㅅ^)＼ Increment level if required
+    if(--toNextLevel == 0) incLevel();
+    return true;
+}
+
 void Game::gameLoop()
 {
     loadNewShape();
