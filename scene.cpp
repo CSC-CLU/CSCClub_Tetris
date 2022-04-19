@@ -28,9 +28,8 @@ void Game::prepareScene(RGB backgroundColor)
         }
     }
     drawShape(*curShape);
-    nxtShape->setPos(nxtShape->getStartingPos());
-    // offset it to fit inside the preview area.
-    nxtShape->x -= previewOffset;
+    // offset it to fit inside the preview area
+    nxtShape->setPos(-previewOffset);
     drawShape(*nxtShape);
 }
 

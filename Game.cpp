@@ -75,10 +75,16 @@ Shape* cyclePiece(int inc) {
     return new Shape(static_cast<Shape::Piece>(curPiece));
 }
 
-void Game::loadNewShape() {
+void Game::setCurShape(Shape *shape) {
+    // todo it might be nice to make curShape a reference rather than a pointer, but it would require either a getter method that autocalls this one or more delicate handling of the curShape variable to ensure it never holds a null pointer.
     delete curShape;
-    curShape = nxtShape;
-    curShape->setPos(curShape->getStartingPos());
+    curShape = shape;
+    // todo should check for end condition here
+    curShape->setPos(COLS/2); // move to center
+}
+
+void Game::loadNewShape() {
+    setCurShape(nxtShape);
     nxtShape = new Shape();
 }
 
