@@ -202,28 +202,31 @@ void Game::processInput()
                 }
                 // interact with our piece
                 // break locks, continue does not.
+                bool resetTime = false;
                 switch (evnt.key.keysym.scancode) {
                     case SDL_SCANCODE_W:
                         curShape->y--;
                         break;
                     case SDL_SCANCODE_S:
                         toggleFastDrop(true);
+                        resetTime = true;
                         //std::cout << "fast fall on" << std::endl;
-                        continue; // already reset timer.
+                        break; // already reset timer.
                     case SDL_SCANCODE_A:
-                        curShape->moveL();
+                        resetTime = curShape->moveL();
                         break;
                     case SDL_SCANCODE_D:
-                        curShape->moveR();
+                        resetTime = curShape->moveR();
                         break;
                     case SDL_SCANCODE_Q:
-                        curShape->rotateL();
+                        resetTime = curShape->rotateL();
                         break;
                     case SDL_SCANCODE_E:
-                        curShape->rotateR();
+                        resetTime = curShape->rotateR();
                         break;
                     case SDL_SCANCODE_TAB:
                         holdShape();
+                        resetTime = true;
                         break;
                     case SDL_SCANCODE_EQUALS:
                         incLevel();
@@ -250,7 +253,7 @@ void Game::processInput()
                     default:
                         continue;
                 }
-                lockPiece();
+                if(resetTime) time = dropDelay();
                 return; // don't check arduino
                 //std::cout << evnt.key.keysym.scancode << std::endl;
         }
@@ -279,7 +282,7 @@ void Game::processInput()
         lock = false;
         instantDrop();
     }
-    if(lock) lockPiece();
+    if(lock) time = dropDelay();
 }
 
 // ／(^ㅅ^)＼ Checks if a given row y is complete
