@@ -53,7 +53,8 @@ namespace arduino {
         void setKeyLights(int R, int G, int B);
         void setTowerLights(char left, char right);
         void setTowerLights(bool LR, bool LG, bool LB, bool LZ, bool RR, bool RG, bool RB, bool RZ);
-        void playAnimation(int animationNumber);
+        enum class Animation {TOWER_LIGHT=1, FLATLINE=2};
+        void playAnimation(Animation);
     private:
         char* serialPort;
         void decodeInputs(char *bytes);
