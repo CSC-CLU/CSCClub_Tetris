@@ -67,6 +67,7 @@ void Game::setCurShape(Shape *shape) {
     shape->setPos(COLS/2);
     if(shape->isInvalidState()) {
         gameState = GameState::GAME_OVER;
+        pc->playAnimation(arduino::Controller::Animation::FLATLINE);
         return; // terminate logic
     }
     delete curShape;
@@ -100,6 +101,7 @@ bool Game::moveCurShapeDown() {
 
 void Game::incLevel() {
     std::cout << "level: " << ++level << " (speed = " << DELAY/(time = dropDelay()) << "G/" << dropDelay() << "ms)" << std::endl;
+    pc->playAnimation(arduino::Controller::Animation::TOWER_LIGHT);
     toNextLevel = LEVEL_CLEAR;
 }
 

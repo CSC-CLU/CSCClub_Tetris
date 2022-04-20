@@ -160,11 +160,11 @@ void Controller::setTowerLights(bool LR, bool LG, bool LB, bool LZ, bool RR, boo
     char statusCode = serial.writeString(command);
 }
 
-void Controller::playAnimation(int animationNumber)
+void Controller::playAnimation(Animation animation)
 {
     stringstream buffer;
     char command[4] = {'A', 'N', 0, '\n'};
-    buffer<<to_string(animationNumber);
+    buffer<<to_string((int)animation);
     buffer>>command[2];
     char statusCode = serial.writeString(command);
 }
