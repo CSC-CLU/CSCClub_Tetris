@@ -155,11 +155,13 @@ void Game::play() {
 struct {
     int move=0, rotate=0;
     bool instantDrop=false,fastDrop=false;
+    bool holdPiece=false;
 } cur, prev;
 
 bool held = true; // press a button to start the game.
 void Game::processInput()
 {
+    // fixme there is massive duplication here
     SDL_Event evnt;
     while(SDL_PollEvent(&evnt))
     {
@@ -252,17 +254,21 @@ void Game::processInput()
         }
     }
     // ARDUINO CONTROLS
+    if(gameState == GameState::START || gameState == GameState::GAME_OVER) {
+        if(pc->startButton) play(); else return;
+    }
     prev = cur;
     cur = {
             pc->moveLeft - (int)pc->moveRight,
             pc->rotateLeft - (int)pc->rotateRight,
             pc->instantDrop,
-            pc->fastDrop
+            pc->fastDrop,
+            pc->selectButton,
     };
+    if(cur.holdPiece && !prev.holdPiece) holdShape();
     bool lock = false;
     if(cur.move != prev.move) lock = curShape->move(cur.move);
     if(cur.rotate != prev.rotate) lock = curShape-> rotate(cur.rotate) || lock;
-    // true only if
     if(cur.fastDrop != prev.fastDrop) {
         lock = false;
         toggleFastDrop(cur.fastDrop);
