@@ -26,13 +26,6 @@ bool DecodeStatusCodes::flushReceiver(char code)
 
 bool DecodeStatusCodes::openDevice(char code)
 {
-#if defined (_WIN32) || defined(_WIN64)
-#define SERIAL_PORT "\\\\.\\COM4"
-#endif
-#if defined (__linux__) || defined(__APPLE__)
-#define SERIAL_PORT "/dev/ttyACM0"
-#endif
-
     if      (code ==  1) {
         if (true)        {printf("Successful connection to %s\n",SERIAL_PORT);}                     return true;}
     else if (code == -1) {printf("Error: device not found %s\n",SERIAL_PORT);                       return false;}

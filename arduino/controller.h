@@ -1,17 +1,20 @@
-//
-// Created by Zrp200 on 4/19/2022.
-//
+/**
+ * @file Controller.h
+ * @author Eric Heinke
+ * @date  April 20 2022
+ * @brief A class for interfacing with an Arduino controller
+ */
 
-#ifndef CSCCLUB_TETRIS_CONTROLLER_H
-#define CSCCLUB_TETRIS_CONTROLLER_H
+#ifndef ARDUINO_CONTROLLER_H
+#define ARDUINO_CONTROLLER_H
 
+// Serial library
+#include "lib/serialib.h"
 // Serial library status code decoding
 #include "DecodeStatusCodes.h"
 
 namespace arduino {
-#include "lib/serialib.h"
-    class ArduinoController
-    {
+    class Controller {
     public:
         serialib serial;
         DecodeStatusCodes statusCodes;
@@ -42,9 +45,8 @@ namespace arduino {
         bool unused1;
         bool unused2;
     public:
-        ArduinoController();
-        ArduinoController(char* serialPort);
-        virtual ~ArduinoController();
+        explicit Controller(char *serialPort=SERIAL_PORT);
+        virtual ~Controller();
         void refreshArduinoStatus();
         void enableNunchuck();
         void disableNunchuck();
@@ -54,7 +56,7 @@ namespace arduino {
         void playAnimation(int animationNumber);
     private:
         char* serialPort;
+        void decodeInputs(char *bytes);
     };
 }
-
-#endif //CSCCLUB_TETRIS_CONTROLLER_H
+#endif //ARDUINO_CONTROLLER_H
