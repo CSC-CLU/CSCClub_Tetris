@@ -17,7 +17,7 @@ void fatalError(std::string errorString)
 }
 
 const Game* gameInstance;
-arduino::ArduinoController* pc;
+arduino::Controller* pc;
 Game::Game(int screenWidth, int screenHeight)
 : window(nullptr)
 , screenWidth(screenWidth)
@@ -25,7 +25,7 @@ Game::Game(int screenWidth, int screenHeight)
 , gameState(GameState::START)
 {
     gameInstance = this;
-    pc = new arduino::ArduinoController();
+    pc = new arduino::Controller();
 }
 
 // sigh...
