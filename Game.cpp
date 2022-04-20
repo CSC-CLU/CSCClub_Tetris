@@ -191,29 +191,31 @@ void Game::processInput()
                 }
                 // interact with our piece
                 // break locks, continue does not.
+                bool resetTime = false;
                 switch (evnt.key.keysym.scancode) {
                     case SDL_SCANCODE_W:
                         curShape->y--;
                         break;
                     case SDL_SCANCODE_S:
                         fastFall = true;
-                        time = dropDelay();
+                        resetTime = true;
                         //std::cout << "fast fall on" << std::endl;
-                        continue; // already reset timer.
+                        break; // already reset timer.
                     case SDL_SCANCODE_A:
-                        curShape->moveL();
+                        resetTime = curShape->moveL();
                         break;
                     case SDL_SCANCODE_D:
-                        curShape->moveR();
+                        resetTime = curShape->moveR();
                         break;
                     case SDL_SCANCODE_Q:
-                        curShape->rotateL();
+                        resetTime = curShape->rotateL();
                         break;
                     case SDL_SCANCODE_E:
-                        curShape->rotateR();
+                        resetTime = curShape->rotateR();
                         break;
                     case SDL_SCANCODE_TAB:
                         holdShape();
+                        resetTime = true;
                         break;
                     case SDL_SCANCODE_EQUALS:
                         incLevel();
@@ -240,7 +242,7 @@ void Game::processInput()
                     default:
                         continue;
                 }
-                lockPiece();
+                if(resetTime) time = dropDelay();
                 //std::cout << evnt.key.keysym.scancode << std::endl;
         }
     }
