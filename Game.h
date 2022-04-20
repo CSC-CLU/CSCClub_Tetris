@@ -10,10 +10,11 @@
 #include<cmath>
 #include "Shape.h"
 #include "Utilities.h"
+#include "Bag.h"
 
 enum class GameState
 {
-    PLAY, EXIT
+    START, PLAY, GAME_OVER,EXIT
 };
 
 class Game
@@ -56,9 +57,12 @@ public:
 
     bool clearRow(int y);
 private:
+    Bag bag; // for drawing pieces
     // shape logic
-    Shape *nxtShape=new Shape(),*curShape = nullptr;
+    Shape *nxtShape=nullptr,*curShape=nullptr, *heldShape = nullptr;
     void loadNewShape();
+    void setCurShape(Shape*);
+    void holdShape();
     void placeShape();
     bool moveCurShapeDown();
     void instantDrop() { while(moveCurShapeDown()); }
@@ -69,6 +73,7 @@ private:
     void drawSquare(int x,int y,int,int,int);
     void drawSquare(int x, int y, RGB color)
     { drawSquare(x,y,color.r,color.g,color.b); }
+    void renderPreview(int offset, Shape*);
     void prepareScene(RGB={255/3,255/3,255/3});
     void presentScene();
     // control logic (game.cpp)
@@ -77,14 +82,16 @@ private:
     void initSystems();
     void processInput();
     void gameLoop();
+    // resets the game to a starting position
+    void play();
     // timer logic
-    int level = 0; // initialized when game starts
+    int level;
     static constexpr int8_t LEVEL_CLEAR = 10;
-    int toNextLevel = LEVEL_CLEAR;
+    int toNextLevel;
     void incLevel();
     // timer until a piece drops via gravity
     double time;
-    bool fastFall = false;
+    bool fastFall;
     constexpr void toggleFastDrop(bool enable)
     {
         if(fastFall != enable) {
@@ -92,7 +99,7 @@ private:
             time = dropDelay();
         }
     }
-    bool locked = false;
+    bool locked;
     void lockPiece() { time = 500; locked = true; }
     // delay to next fall, in ms.
     double dropDelay() const {

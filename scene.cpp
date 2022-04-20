@@ -9,29 +9,36 @@ void Game::presentScene()
     SDL_RenderPresent(this->renderer);
 }
 
-void Game::prepareScene(RGB backgroundColor)
-{
-    SDL_SetRenderDrawColor(this->renderer, backgroundColor.r, backgroundColor.g, backgroundColor.b, 255);
-    SDL_RenderClear(this->renderer);
-    // render grid
-    for(int x=0; x < COLS; x++) for(int y=0; y < ROWS; y++) {
-        drawSquare(x,y,grid[x][y]);
-    }
-    int previewOffset = PREVIEW_SIZE+PADDING;
+void Game::renderPreview(int offset, Shape* shape) {
     RGB previewColor = 0x888888;
     // this generates the prototype preview area.
     for(int i=0; i < PREVIEW_SIZE; i++) {
         // height is half the length (rounded up), as pieces are initially situated horizontally.
         for(int j=0; j < (PREVIEW_SIZE+1)/2; j++) {
             // padding is applied to ensure the preview area doesn't touch the grid
-            drawSquare( i-previewOffset, j, previewColor);
+            drawSquare( i+offset, j, previewColor);
         }
     }
-    drawShape(*curShape);
-    nxtShape->setPos(nxtShape->getStartingPos());
-    // offset it to fit inside the preview area.
-    nxtShape->x -= previewOffset;
-    drawShape(*nxtShape);
+    if(shape != nullptr) {
+        // offset it to fit inside the preview area.
+        shape->setPos(offset);
+        drawShape(*shape);
+    }
+}
+
+void Game::prepareScene(RGB backgroundColor)
+{
+    if(gameState != GameState::PLAY)
+        backgroundColor = backgroundColor.hex()/2;
+    SDL_SetRenderDrawColor(this->renderer, backgroundColor.r, backgroundColor.g, backgroundColor.b, 255);
+    SDL_RenderClear(this->renderer);
+    // render grid
+    for(int x=0; x < COLS; x++) for(int y=0; y < ROWS; y++) {
+        drawSquare(x,y,grid[x][y]);
+    }
+    renderPreview(-PREVIEW_SIZE-PADDING, nxtShape); // next piece on left
+    renderPreview(COLS+PADDING, heldShape); // hold piece on right
+    if(curShape != nullptr) drawShape(*curShape);
 }
 
 // x and y correspond to grid tiles.

@@ -22,7 +22,7 @@ Game::Game(int screenWidth, int screenHeight)
 : window(nullptr)
 , screenWidth(screenWidth)
 , screenHeight(screenHeight)
-, gameState(GameState::PLAY)
+, gameState(GameState::START)
 {
     gameInstance = this;
     pc = new arduino::ArduinoController();
@@ -78,11 +78,34 @@ Shape* cyclePiece(int inc) {
     return new Shape(static_cast<Shape::Piece>(curPiece));
 }
 
-void Game::loadNewShape() {
+void Game::setCurShape(Shape *shape) {
+    // todo it might be nice to make curShape a reference rather than a pointer, but it would require either a getter method that autocalls this one or more delicate handling of the curShape variable to ensure it never holds a null pointer.
+    shape->setPos(COLS/2);
+    if(shape->isInvalidState()) {
+        gameState = GameState::GAME_OVER;
+        return; // terminate logic
+    }
     delete curShape;
-    curShape = nxtShape;
-    curShape->setPos(curShape->getStartingPos());
-    nxtShape = new Shape();
+    curShape = shape;
+}
+
+bool holdUsed = false;
+void Game::holdShape() {
+    if(holdUsed) return;
+    auto tmp = heldShape;
+    heldShape = new Shape(curShape->piece);
+    if(tmp == nullptr) {
+        loadNewShape();
+    } else {
+        holdUsed = true;
+        setCurShape(tmp);
+    }
+}
+
+void Game::loadNewShape() {
+    holdUsed = false;
+    setCurShape(nxtShape);
+    nxtShape = new Shape(bag.draw());
 }
 
 bool Game::moveCurShapeDown() {
@@ -108,6 +131,24 @@ void Game::placeShape() {
             moveRows(s[i].y + s.y);
         }
     }
+    loadNewShape();
+}
+
+void Game::play() {
+    if(gameState == GameState::GAME_OVER) {
+        for (auto &col: grid)
+            for (auto &cell: col)
+                cell = RGB();
+    }
+    gameState = GameState::PLAY;
+    level=0; incLevel();
+    bag = Bag(); // refresh the bag
+    // gravity logic
+    time = dropDelay();
+    fastFall = false;
+    locked = false;
+    delete nxtShape;
+    nxtShape = new Shape(bag.draw());
     loadNewShape();
 }
 
@@ -140,14 +181,21 @@ void Game::processInput()
 //                std::cout << evnt.motion.x << " " << evnt.motion.y << std::endl;
 //                break;
             case SDL_KEYUP:
+                held = false;
+                if(gameState != GameState::PLAY) break;
                 if(evnt.key.keysym.scancode == SDL_SCANCODE_S) {
                     toggleFastDrop(false);
                     //std::cout << "fast fall off" << std::endl;
                 }
-                held = false;
                 break;
             case SDL_KEYDOWN:
                 if(held) break; else held = true;
+                if(gameState == GameState::START || gameState == GameState::GAME_OVER) {
+                    if(evnt.key.keysym.scancode == 40) {
+                        play();
+                    }
+                    return;
+                }
                 // interact with our piece
                 // break locks, continue does not.
                 switch (evnt.key.keysym.scancode) {
@@ -170,13 +218,16 @@ void Game::processInput()
                     case SDL_SCANCODE_E:
                         curShape->rotateR();
                         break;
+                    case SDL_SCANCODE_TAB:
+                        holdShape();
+                        break;
                     case SDL_SCANCODE_EQUALS:
                         incLevel();
                         break;
                     case SDL_SCANCODE_MINUS:
                         std::cout << "level: " << --level << " --- speed=" << (time = dropDelay()) << std::endl;
                         break;
-                    // worth noting this cycles next, so if you want it to start cycling you need to do it twice.
+                        // worth noting this cycles draw, so if you want it to start cycling you need to do it twice.
                     case SDL_SCANCODE_RIGHT:
                         loadNewShape();
                         nxtShape = cyclePiece(+1);
@@ -269,8 +320,6 @@ bool Game::clearRow(int y)
 
 void Game::gameLoop()
 {
-    loadNewShape();
-    incLevel();
     while (true)
     {
         prepareScene();
@@ -279,7 +328,7 @@ void Game::gameLoop()
         pc->refreshArduinoStatus();
         processInput();
         if(gameState == GameState::EXIT) break;
-        applyGravity();
+        if(gameState == GameState::PLAY) applyGravity();
     }
 }
 void Game::applyGravity()
