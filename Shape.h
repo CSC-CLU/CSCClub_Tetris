@@ -77,18 +77,19 @@ struct Shape
     constexpr bool rotate(int dir)
     { return dir != 0 && rotate(dir, -dir); }
 
-private:
-    // necessary offset for the shape to get rendered in the grid
-    Square getStartingPos() const;
-    static bool isInvalidPosition(int x, int y);
-    bool isInvalidPosition(Square s) const
-    { return isInvalidPosition(s.x+x,s.y+y); }
     bool isInvalidState()
     {
         for(int i=0; i < N_SQUARES; i++)
             if(isInvalidPosition(shape[i])) return true;
         return false;
     }
+
+private:
+    // necessary offset for the shape to get rendered in the grid
+    Square getStartingPos() const;
+    static bool isInvalidPosition(int x, int y);
+    bool isInvalidPosition(Square s) const
+    { return isInvalidPosition(s.x+x,s.y+y); }
 
     bool move(int x,int y);
     bool rotate(int x, int y, bool=false);
