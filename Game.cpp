@@ -58,6 +58,21 @@ void Game::initSystems() {
 
     this->renderer = SDL_CreateRenderer(window, -1, rendererFlags);
 
+    // ／(^ㅅ^)＼ Prepare font
+    if(TTF_Init() == -1) {
+        std::cout << "Could not initialize SDL2 ttf, error: " << TTF_GetError() << std::endl;
+    }
+    else {
+        std::cout << "SDL2 ttf ready to go" << std::endl;
+    }
+
+    // ／(^ㅅ^)＼ Font is changed here
+    this->font = TTF_OpenFont("/home/kali/CLionProjects/CSCClub_Tetris/FiraMono-Medium.ttf", 22);
+
+    if(font == nullptr){
+        std::cout << TTF_GetError() << std::endl;
+        exit(1);
+    }
 }
 
 int curPiece = 0;

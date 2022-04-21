@@ -6,7 +6,7 @@
 #define CSCCLUB_TETRIS_GAME_H
 #include <SDL2/SDL.h>
 #include <GL/gl.h>
-
+#include <SDL2/SDL_ttf.h>
 #include<cmath>
 #include "Shape.h"
 #include "Utilities.h"
@@ -32,6 +32,7 @@ private:
     int screenHeight;
     GameState gameState;
     SDL_Renderer* renderer;
+    TTF_Font* font;
 
 // grid logic (game.cpp)
 public:
@@ -72,7 +73,7 @@ private:
     void drawSquare(int x,int y,int,int,int);
     void drawSquare(int x, int y, RGB color)
     { drawSquare(x,y,color.r,color.g,color.b); }
-    void renderPreview(int offset, Shape*);
+    void renderPreview(int offset, Shape*, const char*);
     void prepareScene(RGB={255/3,255/3,255/3});
     void presentScene();
     // control logic (game.cpp)
