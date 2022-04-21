@@ -247,8 +247,8 @@ void Game::processInput()
     }
     prev = cur;
     cur = {
-            pc->moveLeft - (int)pc->moveRight,
-            pc->rotateLeft - (int)pc->rotateRight,
+            (int)pc->moveRight - pc->moveLeft,
+            (int)pc->rotateRight - pc->rotateLeft,
             pc->instantDrop,
             pc->fastDrop,
             pc->selectButton,
