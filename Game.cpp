@@ -33,7 +33,7 @@ bool Shape::isInvalidPosition(int x,int y)
         || y < 0
         || x >= Game::COLS
         || y >= Game::ROWS
-        || !(gameInstance->grid[x][y] == RGB());
+        || !(gameInstance->grid[x][y] == Color());
 }
 
 Game::~Game()
@@ -113,7 +113,7 @@ void Game::play() {
     if(gameState == GameState::GAME_OVER) {
         for (auto &col: grid)
             for (auto &cell: col)
-                cell = RGB();
+                cell = Color();
     }
     gameState = GameState::PLAY;
     level=0; incLevel();
@@ -232,7 +232,7 @@ bool Game::rowComplete(int y) const {
     for(int i = 0; i < COLS; i++)
     {
         // ／(^ㅅ^)＼ If a square in the row is equal to the default, the row is incomplete
-        if(grid[i][y] == RGB())
+        if(grid[i][y] == Color())
         {
             return false;
         }
@@ -263,7 +263,7 @@ bool Game::clearRow(int y)
     // ／(^ㅅ^)＼ Loops through all columns in the row and sets each square to default
     for(int i = 0; i < COLS; i++)
     {
-        grid[i][y] = RGB();
+        grid[i][y] = Color();
     }
     // ／(^ㅅ^)＼ Increment level if required
     if(--toNextLevel == 0) incLevel();

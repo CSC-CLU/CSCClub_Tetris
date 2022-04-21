@@ -10,7 +10,7 @@
 
 #include<cmath>
 #include "Shape.h"
-#include "Utilities.h"
+#include "Color.h"
 #include "Bag.h"
 
 enum class GameState
@@ -55,7 +55,7 @@ public:
     { return (int)fmin(screenHeight/(ROWS+2*PADDING),screenWidth/(COLS+2*PADDING_HORIZ)); }
 
     // the color of a specific tile on the grid
-    RGB grid[COLS][ROWS];
+    Color grid[COLS][ROWS];
     bool rowComplete(int y) const;
 
     bool moveRows(int y);
@@ -75,10 +75,10 @@ private:
     void drawShape(const Shape&);
     void drawSquare(int x,int y);
     void drawSquare(int x,int y,int,int,int);
-    void drawSquare(int x, int y, RGB color)
+    void drawSquare(int x, int y, Color color)
     { drawSquare(x,y,color.r,color.g,color.b); }
     void renderPreview(int offset, Shape*, const char*);
-    void prepareScene(RGB={255/3,255/3,255/3});
+    void prepareScene(Color={255 / 3, 255 / 3, 255 / 3});
     void presentScene();
     // control logic (game.cpp)
     // time (ms) game waits between renders. Also the value of 1G.

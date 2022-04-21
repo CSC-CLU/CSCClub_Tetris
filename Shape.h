@@ -5,7 +5,7 @@
 #ifndef CSCCLUB_TETRIS_SHAPE_H
 #define CSCCLUB_TETRIS_SHAPE_H
 
-#include "Utilities.h"
+#include "Color.h"
 
 // ／(•ㅅ•)＼ Will contain:
 //           - 2D array of (x,y) coordinates for each shape
@@ -29,7 +29,7 @@ struct Shape
     // shortcut way of accessing shape
     Square operator[](int index) const { return shape[index]; }
 
-    RGB color;
+    Color color;
 
     enum Piece { NONE=-1,
             O, I, J, L, Z, S, T,

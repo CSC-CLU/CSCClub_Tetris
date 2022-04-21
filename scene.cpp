@@ -74,7 +74,7 @@ void Game::renderPreview(int offset, Shape* shape, const char* label) {
         SDL_RenderCopy(renderer, textTexture, NULL, &rect);
     }
 
-    RGB previewColor = 0x888888;
+    Color previewColor = 0x888888;
     // this generates the prototype preview area.
     for(int i=0; i < PREVIEW_SIZE; i++) {
         // height is half the length (rounded up), as pieces are initially situated horizontally.
@@ -90,7 +90,7 @@ void Game::renderPreview(int offset, Shape* shape, const char* label) {
     }
 }
 
-void Game::prepareScene(RGB backgroundColor)
+void Game::prepareScene(Color backgroundColor)
 {
     if(gameState != GameState::PLAY)
         backgroundColor = backgroundColor.hex()/2;
