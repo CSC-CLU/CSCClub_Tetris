@@ -6,6 +6,7 @@
 #define CSCCLUB_TETRIS_GAME_H
 #include <SDL2/SDL.h>
 #include <GL/gl.h>
+#include <SDL2/SDL_ttf.h>
 
 #include<cmath>
 #include "Shape.h"
@@ -60,6 +61,7 @@ private:
     Bag bag; // for drawing pieces
     // shape logic
     Shape *nxtShape=nullptr,*curShape=nullptr, *heldShape = nullptr;
+    TTF_Font* font;
     void loadNewShape();
     void setCurShape(Shape*);
     void holdShape();
@@ -72,7 +74,7 @@ private:
     void drawSquare(int x,int y,int,int,int);
     void drawSquare(int x, int y, RGB color)
     { drawSquare(x,y,color.r,color.g,color.b); }
-    void renderPreview(int offset, Shape*);
+    void renderPreview(int offset, Shape*, const char*);
     void prepareScene(RGB={255/3,255/3,255/3});
     void presentScene();
     // control logic (game.cpp)

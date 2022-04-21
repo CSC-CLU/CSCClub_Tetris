@@ -3,13 +3,32 @@
 //
 
 #include "Game.h"
+#include <SDL2/SDL_ttf.h>
+#include <iostream>
 
 void Game::presentScene()
 {
     SDL_RenderPresent(this->renderer);
 }
 
-void Game::renderPreview(int offset, Shape* shape) {
+void Game::renderPreview(int offset, Shape* shape, const char* label) {
+    if(gameState == GameState::PLAY) {
+        // ／(^ㅅ^)＼ Next Piece text
+        SDL_Surface *textSurface = TTF_RenderText_Solid(this->font, label, {255, 255, 255});
+
+        SDL_Texture *textTexture = SDL_CreateTextureFromSurface(this->renderer, textSurface);
+
+        SDL_FreeSurface(textSurface);
+
+        SDL_Rect rect;
+        rect.x = gridLeft() + offset * tileLength();
+        rect.y = tileLength() * 3;
+        rect.w = tileLength() * 4;
+        rect.h = tileLength() * 1;
+
+        SDL_RenderCopy(this->renderer, textTexture, NULL, &rect);
+    }
+
     RGB previewColor = 0x888888;
     // this generates the prototype preview area.
     for(int i=0; i < PREVIEW_SIZE; i++) {
@@ -34,11 +53,12 @@ void Game::prepareScene(RGB backgroundColor)
     SDL_RenderClear(this->renderer);
     // render grid
     for(int x=0; x < COLS; x++) for(int y=0; y < ROWS; y++) {
-        drawSquare(x,y,grid[x][y]);
-    }
-    renderPreview(-PREVIEW_SIZE-PADDING, nxtShape); // next piece on left
-    renderPreview(COLS+PADDING, heldShape); // hold piece on right
+            drawSquare(x,y,grid[x][y]);
+        }
+    renderPreview(-PREVIEW_SIZE-PADDING, nxtShape, "Next Piece"); // next piece on left
+    renderPreview(COLS+PADDING, heldShape, "Held Piece"); // hold piece on right
     if(curShape != nullptr) drawShape(*curShape);
+
 }
 
 // x and y correspond to grid tiles.
