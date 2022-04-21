@@ -7,6 +7,8 @@
 #include <iostream>
 #include <regex>
 
+using namespace std;
+
 SDL_Renderer* renderer;
 TTF_Font* font;
 void Game::initScene() {
@@ -60,8 +62,8 @@ void Game::presentScene()
     SDL_RenderPresent(renderer);
 }
 
-void renderText(const char* label, int x, int y, Color color=0xFFFFFF, int scale=1) {
-    SDL_Surface *textSurface = TTF_RenderText_Solid(font, label, {color.r,color.g,color.b});
+void renderText(const std::string& label, int x, int y, Color color=0xFFFFFF, int scale=1) {
+    SDL_Surface *textSurface = TTF_RenderText_Solid(font, label.c_str(), {color.r,color.g,color.b});
 
     SDL_Texture *textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
 
@@ -105,8 +107,14 @@ void Game::prepareScene(Color backgroundColor)
         }
     renderPreview(PADDING-GRID_LEFT, nxtShape, "Next Piece"); // next piece on left
     // fixme it would be cool to be able to just put GRID_RIGHT here.
-    renderPreview(COLS+PADDING, heldShape, "Held Piece"); // hold piece on right
+    auto right = COLS+PADDING;
+    renderPreview(right, heldShape, "Held Piece"); // hold piece on right
     if(curShape != nullptr) drawShape(*curShape);
+    if(gameState != GameState::START) {
+        int ly = COLS/2-1;
+        renderText(string("Level: ") + to_string(level), right, ly++);
+        renderText(string("To Next: ") + to_string(toNextLevel), right, ly++);
+    }
 
 }
 
