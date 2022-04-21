@@ -31,8 +31,11 @@ private:
     int screenWidth;
     int screenHeight;
     GameState gameState;
-    SDL_Renderer* renderer;
-    TTF_Font* font;
+
+    void initScene();
+    void processInput();
+    void gameLoop();
+    void play();
 
 // grid logic (game.cpp)
 public:
@@ -79,11 +82,6 @@ private:
     // control logic (game.cpp)
     // time (ms) game waits between renders. Also the value of 1G.
     constexpr static uint32_t DELAY = 16;
-    void initSystems();
-    void processInput();
-    void gameLoop();
-    // resets the game to a starting position
-    void play();
     // timer logic
     int level;
     static constexpr int8_t LEVEL_CLEAR = 10;

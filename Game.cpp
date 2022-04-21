@@ -4,7 +4,6 @@
 
 #include "Game.h"
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_ttf.h>
 #include <iostream>
 
 void fatalError(std::string errorString) {
@@ -35,44 +34,8 @@ Game::~Game() {
 }
 
 void Game::run() {
-    initSystems();
+    initScene();
     gameLoop();
-}
-
-void Game::initSystems() {
-    int rendererFlags = SDL_RENDERER_ACCELERATED;
-    // ／(•ㅅ•)＼ Initialize SDL
-    SDL_Init(SDL_INIT_EVERYTHING);
-
-    window = SDL_CreateWindow(
-            "Tetris",
-            SDL_WINDOWPOS_CENTERED,
-            SDL_WINDOWPOS_CENTERED,
-            screenWidth,
-            screenHeight,
-            SDL_WINDOW_OPENGL);
-
-    if(window == nullptr) {
-        fatalError("SDL Window could not be created");
-    }
-
-    this->renderer = SDL_CreateRenderer(window, -1, rendererFlags);
-
-    // ／(^ㅅ^)＼ Prepare font
-    if(TTF_Init() == -1) {
-        std::cout << "Could not initialize SDL2 ttf, error: " << TTF_GetError() << std::endl;
-    }
-    else {
-        std::cout << "SDL2 ttf ready to go" << std::endl;
-    }
-
-    // ／(^ㅅ^)＼ Font is changed here
-    this->font = TTF_OpenFont("/home/kali/CLionProjects/CSCClub_Tetris/FiraMono-Medium.ttf", 22);
-
-    if(font == nullptr){
-        std::cout << TTF_GetError() << std::endl;
-        exit(1);
-    }
 }
 
 int curPiece = 0;

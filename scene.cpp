@@ -5,18 +5,63 @@
 #include "Game.h"
 #include <SDL2/SDL_ttf.h>
 #include <iostream>
+#include <regex>
+
+SDL_Renderer* renderer;
+TTF_Font* font;
+void Game::initScene() {
+    // ／(•ㅅ•)＼ Initialize SDL
+    SDL_Init(SDL_INIT_EVERYTHING);
+
+    window = SDL_CreateWindow(
+            "Tetris",
+            SDL_WINDOWPOS_CENTERED,
+            SDL_WINDOWPOS_CENTERED,
+            screenWidth,
+            screenHeight,
+            SDL_WINDOW_OPENGL);
+
+    if(window == nullptr) {
+        throw "SDL Window could not be created";
+    }
+
+    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+
+    // ／(^ㅅ^)＼ Prepare font
+    if(TTF_Init() == -1) {
+        std::cout << "Could not initialize SDL2 ttf, error: " << TTF_GetError() << std::endl;
+    }
+    else {
+        std::cout << "SDL2 ttf ready to go" << std::endl;
+    }
+
+    // ／(^ㅅ^)＼ Font is changed here
+    // find current directory
+    std::string fontPath = std::regex_replace(
+            SDL_GetBasePath(),
+            std::regex("cmake-build-debug(/|\\\\)$"),
+            "")
+                    + "FiraMono-Medium.ttf";
+    std::cout << "Font: " << fontPath << std::endl;
+    font = TTF_OpenFont(fontPath.c_str(), 22);
+
+    if(font == nullptr){
+        std::cout << TTF_GetError() << std::endl;
+        exit(1);
+    }
+}
 
 void Game::presentScene()
 {
-    SDL_RenderPresent(this->renderer);
+    SDL_RenderPresent(renderer);
 }
 
 void Game::renderPreview(int offset, Shape* shape, const char* label) {
     if(gameState == GameState::PLAY) {
         // ／(^ㅅ^)＼ Next Piece text
-        SDL_Surface *textSurface = TTF_RenderText_Solid(this->font, label, {255, 255, 255});
+        SDL_Surface *textSurface = TTF_RenderText_Solid(font, label, {255, 255, 255});
 
-        SDL_Texture *textTexture = SDL_CreateTextureFromSurface(this->renderer, textSurface);
+        SDL_Texture *textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
 
         SDL_FreeSurface(textSurface);
 
@@ -26,7 +71,7 @@ void Game::renderPreview(int offset, Shape* shape, const char* label) {
         rect.w = tileLength() * 4;
         rect.h = tileLength() * 1;
 
-        SDL_RenderCopy(this->renderer, textTexture, NULL, &rect);
+        SDL_RenderCopy(renderer, textTexture, NULL, &rect);
     }
 
     RGB previewColor = 0x888888;
@@ -49,8 +94,8 @@ void Game::prepareScene(RGB backgroundColor)
 {
     if(gameState != GameState::PLAY)
         backgroundColor = backgroundColor.hex()/2;
-    SDL_SetRenderDrawColor(this->renderer, backgroundColor.r, backgroundColor.g, backgroundColor.b, 255);
-    SDL_RenderClear(this->renderer);
+    SDL_SetRenderDrawColor(renderer, backgroundColor.r, backgroundColor.g, backgroundColor.b, 255);
+    SDL_RenderClear(renderer);
     // render grid
     for(int x=0; x < COLS; x++) for(int y=0; y < ROWS; y++) {
         drawSquare(x,y,grid[x][y]);
@@ -68,13 +113,13 @@ void Game::drawSquare(int x, int y) {
     rect.w = rect.h = tileLength();
     rect.x = gridLeft() + rect.w * x;
     rect.y = rect.h * (y+PADDING); // need to take into account padding since grid is rendered at the top
-    SDL_RenderFillRect(this->renderer, &rect);
+    SDL_RenderFillRect(renderer, &rect);
     // this is startlingly inefficient.
-    SDL_SetRenderDrawColor(this->renderer,0,0,0,0);
-    SDL_RenderDrawRect(this->renderer,&rect);
+    SDL_SetRenderDrawColor(renderer,0,0,0,0);
+    SDL_RenderDrawRect(renderer,&rect);
 }
 void Game::drawSquare(int x, int y, int r, int g, int b) {
-    SDL_SetRenderDrawColor(this->renderer, r, g, b, 0);
+    SDL_SetRenderDrawColor(renderer, r, g, b, 0);
     drawSquare(x,y);
 }
 
