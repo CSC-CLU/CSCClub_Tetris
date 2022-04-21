@@ -68,11 +68,19 @@ void Game::presentScene()
     SDL_RenderPresent(renderer);
 }
 
-void renderText(const std::string& label, int x, int y, int w, int h, Color color=0xFFFFFF) {
+void setColor(Color c) {
+    SDL_SetRenderDrawColor(renderer, c.r,c.g, c.b, c.a);
+}
+
+void renderText(const std::string& label, int x, int y, int w, int h, Color color=0xFFFFFF, bool background=false) {
     SDL_Surface *textSurface = TTF_RenderText_Solid(font, label.c_str(), {color.r,color.g,color.b});
     SDL_Texture *textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
     SDL_FreeSurface(textSurface);
     Game::Rect rect(x,y,w,h);
+    if(background) {
+        setColor(Color());
+        SDL_RenderFillRect(renderer, &rect);
+    }
     SDL_RenderCopy(renderer, textTexture, nullptr, &rect);
 }
 void renderText(const std::string& label, int x, int y, Color color=0xFFFFFF) {
@@ -105,7 +113,7 @@ void Game::prepareScene(Color backgroundColor)
 {
     if(gameState != GameState::PLAY)
         backgroundColor = 0x5b02ce;
-    SDL_SetRenderDrawColor(renderer, backgroundColor.r, backgroundColor.g, backgroundColor.b, 255);
+    setColor(backgroundColor);
     SDL_RenderClear(renderer);
     // render grid
     for(int x=0; x < COLS; x++) for(int y=0; y < ROWS; y++) {
@@ -118,7 +126,7 @@ void Game::prepareScene(Color backgroundColor)
     if(curShape != nullptr) drawShape(*curShape);
 
     if(gameState == GameState::START || gameState == GameState::GAME_OVER) {
-        renderText("Press Start Game", 1, 2, COLS-2,COLS/2-1);
+        renderText("Press Start Game", 1, 2, COLS-2,COLS/2-1, 0xFFFFFF, true);
 //        if(gameState == GameState::GAME_OVER) {
 //            // put it right underneath
 //            renderText("to Restart", right+1, PREVIEW_SIZE+1);
@@ -146,11 +154,11 @@ void drawSquare(int x, int y) {
     Game::Rect rect = {x,y};
     SDL_RenderFillRect(renderer, &rect);
     // this is startlingly inefficient.
-    SDL_SetRenderDrawColor(renderer,0,0,0,0);
+    setColor(0);
     SDL_RenderDrawRect(renderer,&rect);
 }
 void drawSquare(int x, int y, Color c) {
-    SDL_SetRenderDrawColor(renderer, c.r, c.g, c.b, c.a);
+    setColor(c);
     drawSquare(x,y);
 }
 
