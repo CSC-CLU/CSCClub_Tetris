@@ -3,13 +3,13 @@
 //
 
 #include "Shape.h"
+
 #ifndef CSCCLUB_TETRIS_BOARD_H
 #define CSCCLUB_TETRIS_BOARD_H
 
 // ／(•ㅅ•)＼ Will contain:
 //           - 2D array to hold whether a square is occupied or not (and what the tile is)
-class Board
-{
+class Board{
 public:
     bool occupied[10][20];
     int colors[3][10][20];
