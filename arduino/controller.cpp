@@ -13,7 +13,7 @@
 using namespace arduino;
 using namespace std;
 
-Controller::Controller(char* serialPort)
+Controller::Controller(char serialPort[])
 {
     this->serialPort = serialPort;
     this->statusCodes = DecodeStatusCodes(false);
@@ -36,12 +36,12 @@ Controller::~Controller()
 
 void Controller::refreshArduinoStatus()
 {
-    char statusCode = serial.writeString("CT\n");
-    char* bytes = new char[100];
-    statusCode = serial.readString(bytes, '\n', 100, 16);
+    unsigned char statusCode = serial.writeString("CT\n");
+    char bytes[100];
+    statusCode = serial.readString(bytes, '\n', 100, 100);
+    // fixme should populate the controller with default values if nothing is read.
     if (statusCode > 0)
         decodeInputs(bytes);
-    delete bytes;
 }
 
 void Controller::decodeInputs(char* bytes)
@@ -49,13 +49,13 @@ void Controller::decodeInputs(char* bytes)
     this->buttons = ~(((bytes[2] & 0b00000011) << 6) | ((bytes[5] & 0b00000011) << 4) |
                       ((bytes[8] & 0b00000011) << 2) | (bytes[11] & 0b00000011));
     this->moveLeft =    this->buttons & 0b10000000;
-    this->moveRight =   this->buttons & 0b01000000;
-    this->fastDrop =    this->buttons & 0b00100000;
+    this->moveRight =   this->buttons & 0b00100000;
+    this->fastDrop =    this->buttons & 0b01000000;
     this->instantDrop = this->buttons & 0b00010000;
-    this->rotateLeft =  this->buttons & 0b00001000;
-    this->rotateRight = this->buttons & 0b00000100;
-    this->startButton = this->buttons & 0b00000010;
-    this->selectButton =this->buttons & 0b00000001;
+    this->rotateLeft =  this->buttons & 0b00000010;
+    this->rotateRight = this->buttons & 0b00000001;
+    this->startButton = this->buttons & 0b00001000;
+    this->selectButton =this->buttons & 0b00000100;
     this->joystick1X = ((bytes[0] & 0b00111111) << 2) | ((bytes[1] & 0b00110000) >> 4);
     this->joystick1Y = ((bytes[1] & 0b00001111) << 4) | ((bytes[2] & 0b00111100) >> 2);
     this->joystickB1 = !((bytes[13] & 0b00001000) >> 3);

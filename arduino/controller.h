@@ -45,7 +45,7 @@ namespace arduino {
         bool unused1;
         bool unused2;
     public:
-        explicit Controller(char *serialPort=SERIAL_PORT);
+        explicit Controller(char serialPort[]=SERIAL_PORT);
         virtual ~Controller();
         void refreshArduinoStatus();
         void enableNunchuck();
