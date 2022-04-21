@@ -2,8 +2,6 @@
 // Created by kali on 2/28/22.
 //
 
-// ／(^ㅅ^)＼ This is me commenting
-
 #include "Game.h"
 #include <SDL2/SDL.h>
 #include <iostream>
@@ -27,6 +25,14 @@ Game::Game(int screenWidth, int screenHeight)
     gameInstance = this;
 }
 
+// sigh...
+Game::Rect::Rect(int x, int y, int w, int h) : SDL_Rect({
+    gameInstance->tileLength() * (GRID_LEFT + x),
+    gameInstance->tileLength() * (PADDING + y),
+    gameInstance->tileLength() * w,
+    gameInstance->tileLength() * h,
+}){}
+
 bool Shape::isInvalidPosition(int x,int y)
 {
     return x < 0
@@ -38,7 +44,7 @@ bool Shape::isInvalidPosition(int x,int y)
 
 Game::~Game()
 {
-
+    destructScene();
 }
 
 void Game::run() {

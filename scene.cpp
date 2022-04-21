@@ -7,6 +7,8 @@
 #include <iostream>
 #include <regex>
 
+using namespace std;
+
 SDL_Renderer* renderer;
 TTF_Font* font;
 void Game::initScene() {
@@ -51,27 +53,44 @@ void Game::initScene() {
     }
 }
 
+void Game::destructScene() {
+    SDL_DestroyWindow(window);
+    TTF_CloseFont(font);
+    SDL_Quit();
+}
+
+void drawSquare(int x, int y);
+void drawSquare(int x, int y, Color c);
+void drawShape(const Shape&);
+
 void Game::presentScene()
 {
     SDL_RenderPresent(renderer);
 }
 
+void setColor(Color c) {
+    SDL_SetRenderDrawColor(renderer, c.r,c.g, c.b, c.a);
+}
+
+void renderText(const std::string& label, int x, int y, int w, int h, Color color=0xFFFFFF, bool background=false) {
+    SDL_Surface *textSurface = TTF_RenderText_Solid(font, label.c_str(), {color.r,color.g,color.b});
+    SDL_Texture *textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+    SDL_FreeSurface(textSurface);
+    Game::Rect rect(x,y,w,h);
+    if(background) {
+        setColor(Color());
+        SDL_RenderFillRect(renderer, &rect);
+    }
+    SDL_RenderCopy(renderer, textTexture, nullptr, &rect);
+}
+void renderText(const std::string& label, int x, int y, Color color=0xFFFFFF) {
+    renderText(label,x,y,4,1,color);
+}
+
 void Game::renderPreview(int offset, Shape* shape, const char* label) {
     if(gameState == GameState::PLAY) {
         // ／(^ㅅ^)＼ Next Piece text
-        SDL_Surface *textSurface = TTF_RenderText_Solid(font, label, {255, 255, 255});
-
-        SDL_Texture *textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
-
-        SDL_FreeSurface(textSurface);
-
-        SDL_Rect rect;
-        rect.x = gridLeft() + offset * tileLength();
-        rect.y = tileLength() * 3;
-        rect.w = tileLength() * 4;
-        rect.h = tileLength() * 1;
-
-        SDL_RenderCopy(renderer, textTexture, NULL, &rect);
+        renderText(label,offset, 2);
     }
 
     Color previewColor = 0x888888;
@@ -93,37 +112,57 @@ void Game::renderPreview(int offset, Shape* shape, const char* label) {
 void Game::prepareScene(Color backgroundColor)
 {
     if(gameState != GameState::PLAY)
-        backgroundColor = backgroundColor.hex()/2;
-    SDL_SetRenderDrawColor(renderer, backgroundColor.r, backgroundColor.g, backgroundColor.b, 255);
+        backgroundColor = 0x5b02ce;
+    setColor(backgroundColor);
     SDL_RenderClear(renderer);
     // render grid
     for(int x=0; x < COLS; x++) for(int y=0; y < ROWS; y++) {
             drawSquare(x,y,grid[x][y]);
-        }
-    renderPreview(-PREVIEW_SIZE-PADDING, nxtShape, "Next Piece"); // next piece on left
-    renderPreview(COLS+PADDING, heldShape, "Held Piece"); // hold piece on right
+    }
+    renderPreview(PADDING-GRID_LEFT, nxtShape, "Next Piece"); // next piece on left
+    // fixme it would be cool to be able to just put GRID_RIGHT here.
+    auto right = COLS+PADDING;
+    renderPreview(right, heldShape, "Held Piece"); // hold piece on right
     if(curShape != nullptr) drawShape(*curShape);
+
+    if(gameState == GameState::START || gameState == GameState::GAME_OVER) {
+        renderText("Press Start Game", 1, 2, COLS-2,COLS/2-1, 0xFFFFFF, true);
+//        if(gameState == GameState::GAME_OVER) {
+//            // put it right underneath
+//            renderText("to Restart", right+1, PREVIEW_SIZE+1);
+//        }
+    }
+
+    int ly = ROWS*1/3;
+    if(gameState != GameState::START) {
+        renderText(string("Level: ") + to_string(level), right, ly);
+        ly++;
+        renderText(string("To Next: ") + to_string(toNextLevel), right, ly);
+
+        if(gameState == GameState::GAME_OVER) {
+            ly += ROWS/4;
+            renderText("High Scores", right, ROWS*3/4); /*700,3,10,3*/
+        }
+    }
+
 
 }
 
 // x and y correspond to grid tiles.
 // fixme this sets the default color to black.
-void Game::drawSquare(int x, int y) {
-    SDL_Rect rect;
-    rect.w = rect.h = tileLength();
-    rect.x = gridLeft() + rect.w * x;
-    rect.y = rect.h * (y+PADDING); // need to take into account padding since grid is rendered at the top
+void drawSquare(int x, int y) {
+    Game::Rect rect = {x,y};
     SDL_RenderFillRect(renderer, &rect);
     // this is startlingly inefficient.
-    SDL_SetRenderDrawColor(renderer,0,0,0,0);
+    setColor(0);
     SDL_RenderDrawRect(renderer,&rect);
 }
-void Game::drawSquare(int x, int y, int r, int g, int b) {
-    SDL_SetRenderDrawColor(renderer, r, g, b, 0);
+void drawSquare(int x, int y, Color c) {
+    setColor(c);
     drawSquare(x,y);
 }
 
-void Game::drawShape(const Shape& shape) {
+void drawShape(const Shape& shape) {
     for(int i=0; i < Shape::N_SQUARES; i++) {
         drawSquare(shape.x+shape[i].x,shape.y+shape[i].y, shape.color);
     }
