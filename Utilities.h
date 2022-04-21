@@ -7,8 +7,9 @@
 
 
 /** wrapper for color operations **/
-struct RGB{
-    int r, g, b;
+struct RGB
+{
+    int r,g,b;
 
     RGB();
     RGB(int r, int g, int b);
@@ -16,7 +17,7 @@ struct RGB{
     // careful, this is called implicitly!
     RGB(int hex);
 
-    bool operator==(RGB other) const{ return hex() == other.hex(); }
+    bool operator==(RGB other) const { return hex() == other.hex(); }
 
     int hex() const;
 };
