@@ -39,6 +39,37 @@ void Game::prepareScene(RGB backgroundColor)
     renderPreview(-PREVIEW_SIZE-PADDING, nxtShape); // next piece on left
     renderPreview(COLS+PADDING, heldShape); // hold piece on right
     if(curShape != nullptr) drawShape(*curShape);
+
+    if(TTF_Init() == -1) {
+        std::cout << "Could not initialize SDL2 ttf, error: " << TTF_GetError() << std::endl;
+    }
+    else {
+        std::cout << "SDL2 ttf ready to go" << std::endl;
+    }
+
+    TTF_Font* font = TTF_OpenFont("./kali/home/Documents/ShareTechMono-Regular.ttf", 22);
+
+    if(font == nullptr){
+        std::cout << "Could not load font" << std::endl;
+        exit(1);
+    }
+
+    SDL_Surface* textSurface = TTF_RenderText_Solid(font, "Next Piece", {255,255,255});
+
+    SDL_Texture* textTexture = SDL_CreateTextureFromSurface(this->renderer, textSurface);
+
+    SDL_FreeSurface(textSurface);
+
+    SDL_Rect rect;
+    rect.x = 10;
+    rect.y = 10;
+    rect.w = 100;
+    rect.h = 100;
+
+    SDL_SetRenderDrawColor(this->renderer, 0, 0, 0xFF, SDL_ALPHA_OPAQUE);
+    SDL_RenderClear(this->renderer);
+
+    SDL_RenderCopy(this->renderer, textTexture, NULL, &rect);
 }
 
 // x and y correspond to grid tiles.
