@@ -7,7 +7,7 @@
 #include <SDL2/SDL_ttf.h>
 #include <iostream>
 
-void fatalError(std::string errorString) {
+void fatalError(std::string errorString){
     std::cout << errorString << std::endl;
     std::cout << "Enter any key to quit...";
     int tmp;
@@ -18,11 +18,11 @@ void fatalError(std::string errorString) {
 const Game *gameInstance;
 
 Game::Game(int screenWidth, int screenHeight)
-        : window(nullptr), screenWidth(screenWidth), screenHeight(screenHeight), gameState(GameState::START) {
+    : window(nullptr), screenWidth(screenWidth), screenHeight(screenHeight), gameState(GameState::START){
     gameInstance = this;
 }
 
-bool Shape::isInvalidPosition(int x, int y) {
+bool Shape::isInvalidPosition(int x, int y){
     return x < 0
            || y < 0
            || x >= Game::COLS
@@ -30,39 +30,39 @@ bool Shape::isInvalidPosition(int x, int y) {
            || !(gameInstance->grid[x][y] == RGB());
 }
 
-Game::~Game() {
+Game::~Game(){
 
 }
 
-void Game::run() {
+void Game::run(){
     initSystems();
     gameLoop();
 }
 
-void Game::initSystems() {
+void Game::initSystems(){
     int rendererFlags = SDL_RENDERER_ACCELERATED;
     // ／(•ㅅ•)＼ Initialize SDL
     SDL_Init(SDL_INIT_EVERYTHING);
 
     window = SDL_CreateWindow(
-            "Tetris",
-            SDL_WINDOWPOS_CENTERED,
-            SDL_WINDOWPOS_CENTERED,
-            screenWidth,
-            screenHeight,
-            SDL_WINDOW_OPENGL);
+        "Tetris",
+        SDL_WINDOWPOS_CENTERED,
+        SDL_WINDOWPOS_CENTERED,
+        screenWidth,
+        screenHeight,
+        SDL_WINDOW_OPENGL);
 
-    if(window == nullptr) {
+    if(window == nullptr){
         fatalError("SDL Window could not be created");
     }
 
     this->renderer = SDL_CreateRenderer(window, -1, rendererFlags);
 
     // ／(^ㅅ^)＼ Prepare font
-    if(TTF_Init() == -1) {
+    if(TTF_Init() == -1){
         std::cout << "Could not initialize SDL2 ttf, error: " << TTF_GetError() << std::endl;
     }
-    else {
+    else{
         std::cout << "SDL2 ttf ready to go" << std::endl;
     }
 
@@ -77,16 +77,16 @@ void Game::initSystems() {
 
 int curPiece = 0;
 
-Shape *cyclePiece(int inc) {
+Shape *cyclePiece(int inc){
     int N = Shape::T + 1;
     curPiece = (curPiece + N + inc) % N;
     return new Shape(static_cast<Shape::Piece>(curPiece));
 }
 
-void Game::setCurShape(Shape *shape) {
+void Game::setCurShape(Shape *shape){
     // todo it might be nice to make curShape a reference rather than a pointer, but it would require either a getter method that autocalls this one or more delicate handling of the curShape variable to ensure it never holds a null pointer.
     shape->setPos(COLS / 2);
-    if(shape->isInvalidState()) {
+    if(shape->isInvalidState()){
         gameState = GameState::GAME_OVER;
         return; // terminate logic
     }
@@ -96,54 +96,54 @@ void Game::setCurShape(Shape *shape) {
 
 bool holdUsed = false;
 
-void Game::holdShape() {
+void Game::holdShape(){
     if(holdUsed) return;
     auto tmp = heldShape;
     heldShape = new Shape(curShape->piece);
-    if(tmp == nullptr) {
+    if(tmp == nullptr){
         loadNewShape();
     }
-    else {
+    else{
         holdUsed = true;
         setCurShape(tmp);
     }
 }
 
-void Game::loadNewShape() {
+void Game::loadNewShape(){
     holdUsed = false;
     setCurShape(nxtShape);
     nxtShape = new Shape(bag.draw());
 }
 
-bool Game::moveCurShapeDown() {
+bool Game::moveCurShapeDown(){
     if(curShape->moveDown()) return true;
     placeShape();
     return false;
 }
 
-void Game::incLevel() {
+void Game::incLevel(){
     std::cout << "level: " << ++level << " (speed = " << DELAY / (time = dropDelay()) << "G/" << dropDelay() << "ms)"
               << std::endl;
     toNextLevel = LEVEL_CLEAR;
 }
 
-void Game::placeShape() {
+void Game::placeShape(){
     Shape &s = *curShape;
-    for(int i = 0; i < Shape::N_SQUARES; i++) {
+    for(int i = 0; i < Shape::N_SQUARES; i++){
         grid[s[i].x + s.x][s[i].y + s.y] = curShape->color;
     }
-    for(int i = 0; i < Shape::N_SQUARES; i++) {
-        if(rowComplete(s[i].y + s.y)) {
+    for(int i = 0; i < Shape::N_SQUARES; i++){
+        if(rowComplete(s[i].y + s.y)){
             moveRows(s[i].y + s.y);
         }
     }
     loadNewShape();
 }
 
-void Game::play() {
-    if(gameState == GameState::GAME_OVER) {
-        for(auto &col: grid) {
-            for(auto &cell: col) {
+void Game::play(){
+    if(gameState == GameState::GAME_OVER){
+        for(auto &col: grid){
+            for(auto &cell: col){
                 cell = RGB();
             }
         }
@@ -162,12 +162,12 @@ void Game::play() {
 }
 
 bool held = true; // press a button to start the game.
-void Game::processInput() {
+void Game::processInput(){
     SDL_Event evnt;
-    while(SDL_PollEvent(&evnt)) {
-        switch(evnt.type) {
+    while(SDL_PollEvent(&evnt)){
+        switch(evnt.type){
             case SDL_WINDOWEVENT:
-                switch(evnt.window.event) {
+                switch(evnt.window.event){
                     case SDL_WINDOWEVENT_RESIZED:
                         screenWidth = evnt.window.data1;
                         screenHeight = evnt.window.data2;
@@ -184,7 +184,7 @@ void Game::processInput() {
             case SDL_KEYUP:
                 held = false;
                 if(gameState != GameState::PLAY) break;
-                if(fastFall && evnt.key.keysym.scancode == SDL_SCANCODE_S) {
+                if(fastFall && evnt.key.keysym.scancode == SDL_SCANCODE_S){
                     fastFall = false;
                     time = dropDelay();
                     //std::cout << "fast fall off" << std::endl;
@@ -193,37 +193,38 @@ void Game::processInput() {
             case SDL_KEYDOWN:
                 if(held) break;
                 else held = true;
-                if(gameState == GameState::START || gameState == GameState::GAME_OVER) {
-                    if(evnt.key.keysym.scancode == 40) {
+                if(gameState == GameState::START || gameState == GameState::GAME_OVER){
+                    if(evnt.key.keysym.scancode == 40){
                         play();
                     }
                     return;
                 }
                 // interact with our piece
                 // break locks, continue does not.
-                switch(evnt.key.keysym.scancode) {
+                switch (evnt.key.keysym.scancode) {
                     case SDL_SCANCODE_W:
                         curShape->y--;
                         break;
                     case SDL_SCANCODE_S:
                         fastFall = true;
-                        time = dropDelay();
+                        resetTime = true;
                         //std::cout << "fast fall on" << std::endl;
-                        continue; // already reset timer.
+                        break; // already reset timer.
                     case SDL_SCANCODE_A:
-                        curShape->moveL();
+                        resetTime = curShape->moveL();
                         break;
                     case SDL_SCANCODE_D:
-                        curShape->moveR();
+                        resetTime = curShape->moveR();
                         break;
                     case SDL_SCANCODE_Q:
-                        curShape->rotateL();
+                        resetTime = curShape->rotateL();
                         break;
                     case SDL_SCANCODE_E:
-                        curShape->rotateR();
+                        resetTime = curShape->rotateR();
                         break;
                     case SDL_SCANCODE_TAB:
                         holdShape();
+                        resetTime = true;
                         break;
                     case SDL_SCANCODE_EQUALS:
                         incLevel();
@@ -242,7 +243,7 @@ void Game::processInput() {
                         break;
                     case 40:
                         // move it down all the way
-                        while(moveCurShapeDown()) {}
+                        while(moveCurShapeDown()){}
                         break;
                     case SDL_SCANCODE_DELETE:
                         loadNewShape();
@@ -250,18 +251,18 @@ void Game::processInput() {
                     default:
                         continue;
                 }
-                lockPiece();
+                if(resetTime) time = dropDelay();
                 //std::cout << evnt.key.keysym.scancode << std::endl;
         }
     }
 }
 
 // ／(^ㅅ^)＼ Checks if a given row y is complete
-bool Game::rowComplete(int y) const {
+bool Game::rowComplete(int y) const{
     // ／(^ㅅ^)＼ Loop through columns in the row
-    for(int i = 0; i < COLS; i++) {
+    for(int i = 0; i < COLS; i++){
         // ／(^ㅅ^)＼ If a square in the row is equal to the default, the row is incomplete
-        if(grid[i][y] == RGB()) {
+        if(grid[i][y] == RGB()){
             return false;
         }
     }
@@ -270,11 +271,11 @@ bool Game::rowComplete(int y) const {
 }
 
 // ／(^ㅅ^)＼ Move all rows above y down a single row
-bool Game::moveRows(int y) {
+bool Game::moveRows(int y){
     // ／(^ㅅ^)＼ Loop from y to 1
-    for(int i = y; i > 0; i--) {
+    for(int i = y; i > 0; i--){
         // ／(^ㅅ^)＼ Move the row above to the current row
-        for(int j = 0; j < COLS; j++) {
+        for(int j = 0; j < COLS; j++){
             grid[j][i] = grid[j][i - 1];
         }
     }
@@ -283,9 +284,9 @@ bool Game::moveRows(int y) {
 }
 
 // ／(^ㅅ^)＼ Clears a given row y
-bool Game::clearRow(int y) {
+bool Game::clearRow(int y){
     // ／(^ㅅ^)＼ Loops through all columns in the row and sets each square to default
-    for(int i = 0; i < COLS; i++) {
+    for(int i = 0; i < COLS; i++){
         grid[i][y] = RGB();
     }
     // ／(^ㅅ^)＼ Increment level if required
@@ -293,8 +294,8 @@ bool Game::clearRow(int y) {
     return true;
 }
 
-void Game::gameLoop() {
-    while(true) {
+void Game::gameLoop(){
+    while(true){
         prepareScene();
         presentScene();
         SDL_Delay(DELAY);
@@ -304,24 +305,24 @@ void Game::gameLoop() {
     }
 }
 
-void Game::applyGravity() {
+void Game::applyGravity(){
     time -= DELAY;
-    while(time <= 0) {
-        if(curShape->moveDown()) {
+    while(time <= 0){
+        if(curShape->moveDown()){
             time += dropDelay();
             locked = false;
         }
-        else {
+        else{
             // shape cannot move down anymore.
             fastFall = false;
-            if(locked) {
+            if(locked){
                 // lock delay has been spent, place the shape.
                 locked = false;
                 placeShape();
                 // return to standard drop delay
                 time = dropDelay();
             }
-            else {
+            else{
                 // this prevents the shape from being placed instantly, allowing the player to quickly move it before it places.
                 lockPiece();
             }
