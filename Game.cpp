@@ -2,8 +2,6 @@
 // Created by kali on 2/28/22.
 //
 
-// ／(^ㅅ^)＼ This is me commenting
-
 #include "Game.h"
 #include <SDL2/SDL.h>
 #include <iostream>
@@ -38,7 +36,9 @@ bool Shape::isInvalidPosition(int x,int y)
 
 Game::~Game()
 {
-
+    SDL_DestroyWindow(this->window);
+    TTF_CloseFont(this->font);
+    SDL_Quit();
 }
 
 void Game::run() {

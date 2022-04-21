@@ -65,6 +65,7 @@ private:
     Bag bag; // for drawing pieces
     // shape logic
     Shape *nxtShape=nullptr,*curShape=nullptr, *heldShape = nullptr;
+    TTF_Font* font;
     void loadNewShape();
     void setCurShape(Shape*);
     void holdShape();
@@ -77,8 +78,8 @@ private:
     void drawSquare(int x,int y,int,int,int);
     void drawSquare(int x, int y, Color color)
     { drawSquare(x,y,color.r,color.g,color.b); }
-    void renderPreview(int offset, Shape*, const char*);
-    void prepareScene(Color={255 / 3, 255 / 3, 255 / 3});
+    void renderPreview(int offset, Shape*, SDL_Texture*);
+    void prepareScene(Color=0x351c75);
     void presentScene();
     // control logic (game.cpp)
     // time (ms) game waits between renders. Also the value of 1G.

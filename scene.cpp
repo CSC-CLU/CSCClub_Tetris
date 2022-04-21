@@ -8,7 +8,6 @@
 #include <regex>
 
 SDL_Renderer* renderer;
-TTF_Font* font;
 void Game::initScene() {
     // ／(•ㅅ•)＼ Initialize SDL
     SDL_Init(SDL_INIT_EVERYTHING);
@@ -56,22 +55,15 @@ void Game::presentScene()
     SDL_RenderPresent(renderer);
 }
 
-void Game::renderPreview(int offset, Shape* shape, const char* label) {
-    if(gameState == GameState::PLAY) {
-        // ／(^ㅅ^)＼ Next Piece text
-        SDL_Surface *textSurface = TTF_RenderText_Solid(font, label, {255, 255, 255});
-
-        SDL_Texture *textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
-
-        SDL_FreeSurface(textSurface);
-
+void Game::renderPreview(int offset, Shape* shape, SDL_Texture* texture) {
+    if(gameState == GameState::PLAY){
         SDL_Rect rect;
         rect.x = gridLeft() + offset * tileLength();
         rect.y = tileLength() * 3;
         rect.w = tileLength() * 4;
         rect.h = tileLength() * 1;
 
-        SDL_RenderCopy(renderer, textTexture, NULL, &rect);
+        SDL_RenderCopy(renderer, texture, NULL, &rect);
     }
 
     Color previewColor = 0x888888;
@@ -93,16 +85,67 @@ void Game::renderPreview(int offset, Shape* shape, const char* label) {
 void Game::prepareScene(Color backgroundColor)
 {
     if(gameState != GameState::PLAY)
-        backgroundColor = backgroundColor.hex()/2;
+        backgroundColor = 0x5b02ce;
     SDL_SetRenderDrawColor(renderer, backgroundColor.r, backgroundColor.g, backgroundColor.b, 255);
     SDL_RenderClear(renderer);
     // render grid
     for(int x=0; x < COLS; x++) for(int y=0; y < ROWS; y++) {
             drawSquare(x,y,grid[x][y]);
-        }
-    renderPreview(-PREVIEW_SIZE-PADDING, nxtShape, "Next Piece"); // next piece on left
-    renderPreview(COLS+PADDING, heldShape, "Held Piece"); // hold piece on right
+    }
+    // ／(^ㅅ^)＼ Next Piece text
+    SDL_Surface *nextSurface = TTF_RenderText_Solid(font, "Next Piece", {255, 255, 255});
+
+    SDL_Texture *nextTexture = SDL_CreateTextureFromSurface(renderer, nextSurface);
+
+    // ／(^ㅅ^)＼ Held Piece text
+    SDL_Surface *heldSurface = TTF_RenderText_Solid(font, "Held Piece", {255, 255, 255});
+
+    SDL_Texture *heldTexture = SDL_CreateTextureFromSurface(renderer, heldSurface);
+
+    renderPreview(-PREVIEW_SIZE-PADDING, nxtShape, nextTexture); // next piece on left
+    renderPreview(COLS+PADDING, heldShape, heldTexture); // hold piece on right
     if(curShape != nullptr) drawShape(*curShape);
+
+    if(gameState == GameState::START){
+        // ／(^ㅅ^)＼ Start game text
+        SDL_Surface *startSurface = TTF_RenderText_Solid(font, "Press Start Game to Play", {255, 255, 255});
+
+        SDL_Texture *startTexture = SDL_CreateTextureFromSurface(renderer, startSurface);
+
+        SDL_Rect rect;
+        rect.x = 600;
+        rect.y = tileLength() * 10;
+        rect.w = tileLength() * 20;
+        rect.h = tileLength() * 3;
+
+        SDL_RenderCopy(renderer, startTexture, NULL, &rect);
+    }
+    else if(gameState == GameState::GAME_OVER){
+        // ／(^ㅅ^)＼ End game text
+        SDL_Surface *endSurface = TTF_RenderText_Solid(font, "Press Start Game to Restart", {255, 255, 255});
+
+        SDL_Texture *endTexture = SDL_CreateTextureFromSurface(renderer, endSurface);
+
+        SDL_Rect rect;
+        rect.x = 600;
+        rect.y = tileLength() * 20;
+        rect.w = tileLength() * 20;
+        rect.h = tileLength() * 3;
+
+        SDL_RenderCopy(renderer, endTexture, NULL, &rect);
+
+        // ／(^ㅅ^)＼ Score Title text
+        SDL_Surface *scoreTitleSurface = TTF_RenderText_Solid(font, "High Scores", {255, 255, 255});
+
+        SDL_Texture *scoreTitleTexture = SDL_CreateTextureFromSurface(renderer, scoreTitleSurface);
+
+        rect.x = 700;
+        rect.y = tileLength() * 3;
+        rect.w = tileLength() * 10;
+        rect.h = tileLength() * 3;
+
+        SDL_RenderCopy(renderer, scoreTitleTexture, NULL, &rect);
+    }
 
 }
 
