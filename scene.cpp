@@ -82,6 +82,7 @@ void renderText(const std::string& label, int x, int y, int w, int h, Color colo
         SDL_RenderFillRect(renderer, &rect);
     }
     SDL_RenderCopy(renderer, textTexture, nullptr, &rect);
+    SDL_DestroyTexture(textTexture);
 }
 void renderText(const std::string& label, int x, int y, Color color=0xFFFFFF) {
     renderText(label,x,y,4,1,color);
@@ -124,6 +125,7 @@ void Game::prepareScene(Color backgroundColor)
     auto right = COLS+PADDING;
     renderPreview(right, heldShape, "Held Piece"); // hold piece on right
     if(curShape != nullptr) drawShape(*curShape);
+    renderText(to_string(score), right, 4, 2, 2, 0xFFFFFF, true);
 
     if(gameState == GameState::START || gameState == GameState::GAME_OVER) {
         renderText("Press Start Game", 1, 2, COLS-2,COLS/2-1, 0xFFFFFF, true);
