@@ -8,14 +8,14 @@
 #include <string>
 #include "Shape.h"
 
-class Bag{
-    static constexpr int SIZE = Shape::T + 1;
+class Bag {
+    static constexpr int SIZE = Shape::T+1;
     Shape::Piece array[SIZE] = {Shape::O, Shape::I, Shape::J, Shape::L, Shape::Z, Shape::S, Shape::T};
     int i;
     void shuffle();
 public:
-    Bag(){ shuffle(); }
-    Shape::Piece draw(){
+    Bag() { shuffle(); }
+    Shape::Piece draw() {
         if(i == SIZE) shuffle();
         return array[i++];
     }

@@ -8,11 +8,11 @@
 
 using namespace std;
 
-void Bag::shuffle(){
+void Bag::shuffle() {
     auto random(std::mt19937(std::chrono::steady_clock::now().time_since_epoch().count()));
     std::uniform_int_distribution<int> distribution(Shape::Piece::O, Shape::Piece::T);
     // shuffle
-    for(auto &piece: array){
+    for(auto &piece : array) {
         int j = distribution(random);
         Shape::Piece temp = piece;
         piece = array[j];
