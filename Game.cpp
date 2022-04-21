@@ -27,6 +27,14 @@ Game::Game(int screenWidth, int screenHeight)
     gameInstance = this;
 }
 
+// sigh...
+Game::Rect::Rect(int x, int y, int w, int h) : SDL_Rect({
+    gameInstance->tileLength() * (GRID_LEFT + x),
+    gameInstance->tileLength() * (PADDING + y),
+    gameInstance->tileLength() * w,
+    gameInstance->tileLength() * h,
+}){}
+
 bool Shape::isInvalidPosition(int x,int y)
 {
     return x < 0

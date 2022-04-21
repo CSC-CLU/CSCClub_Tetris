@@ -51,32 +51,30 @@ void Game::initScene() {
     }
 }
 
+void drawSquare(int x, int y);
+void drawSquare(int x, int y, Color c);
+void drawShape(const Shape&);
+
 void Game::presentScene()
 {
     SDL_RenderPresent(renderer);
 }
 
-void Game::renderText(const char* label, int x, int y, Color color, int scale) const {
+void renderText(const char* label, int x, int y, Color color=0xFFFFFF, int scale=1) {
     SDL_Surface *textSurface = TTF_RenderText_Solid(font, label, {color.r,color.g,color.b});
 
     SDL_Texture *textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
 
     SDL_FreeSurface(textSurface);
 
-    SDL_Rect rect = {
-            x * tileLength(),
-            y * tileLength(),
-            4 * scale * tileLength(),
-            scale * tileLength(),
-    };
-
+    Game::Rect rect(x, y,4 * scale,scale);
     SDL_RenderCopy(renderer, textTexture, nullptr, &rect);
 }
 
 void Game::renderPreview(int offset, Shape* shape, const char* label) {
     if(gameState == GameState::PLAY) {
         // ／(^ㅅ^)＼ Next Piece text
-        renderText(label,PADDING_HORIZ + offset, 3);
+        renderText(label,offset, 2);
     }
 
     Color previewColor = 0x888888;
@@ -105,7 +103,8 @@ void Game::prepareScene(Color backgroundColor)
     for(int x=0; x < COLS; x++) for(int y=0; y < ROWS; y++) {
             drawSquare(x,y,grid[x][y]);
         }
-    renderPreview(-PREVIEW_SIZE-PADDING, nxtShape, "Next Piece"); // next piece on left
+    renderPreview(PADDING-GRID_LEFT, nxtShape, "Next Piece"); // next piece on left
+    // fixme it would be cool to be able to just put GRID_RIGHT here.
     renderPreview(COLS+PADDING, heldShape, "Held Piece"); // hold piece on right
     if(curShape != nullptr) drawShape(*curShape);
 
@@ -113,22 +112,19 @@ void Game::prepareScene(Color backgroundColor)
 
 // x and y correspond to grid tiles.
 // fixme this sets the default color to black.
-void Game::drawSquare(int x, int y) {
-    SDL_Rect rect;
-    rect.w = rect.h = tileLength();
-    rect.x = gridLeft() + rect.w * x;
-    rect.y = rect.h * (y+PADDING); // need to take into account padding since grid is rendered at the top
+void drawSquare(int x, int y) {
+    Game::Rect rect = {x,y};
     SDL_RenderFillRect(renderer, &rect);
     // this is startlingly inefficient.
     SDL_SetRenderDrawColor(renderer,0,0,0,0);
     SDL_RenderDrawRect(renderer,&rect);
 }
-void Game::drawSquare(int x, int y, int r, int g, int b) {
-    SDL_SetRenderDrawColor(renderer, r, g, b, 0);
+void drawSquare(int x, int y, Color c) {
+    SDL_SetRenderDrawColor(renderer, c.r, c.g, c.b, c.a);
     drawSquare(x,y);
 }
 
-void Game::drawShape(const Shape& shape) {
+void drawShape(const Shape& shape) {
     for(int i=0; i < Shape::N_SQUARES; i++) {
         drawSquare(shape.x+shape[i].x,shape.y+shape[i].y, shape.color);
     }

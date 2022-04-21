@@ -42,19 +42,26 @@ private:
 
 // grid logic (game.cpp)
 public:
+    // todo in all honesty this could be moved entirely out of game.
     constexpr static int ROWS=20, COLS=10; // actual board dimensions
     constexpr static int PADDING=1; // minimum space between elements
     // size of the preview area
     constexpr static int PREVIEW_SIZE = Shape::N_SQUARES;
     // total amount of empty space forced to either size of the grid.
     // currently, enough to fit a preview area on either side of the grid.
-    constexpr static int PADDING_HORIZ=PREVIEW_SIZE+2*PADDING;
-
-    int gridLeft() const { return tileLength() * PADDING_HORIZ; }
-    int gridRight() const { return tileLength() * (COLS + PADDING_HORIZ); }
+    constexpr static int
+        GRID_LEFT= PREVIEW_SIZE + 2 * PADDING,
+        GRID_RIGHT=COLS+GRID_LEFT;
 
     int tileLength() const // the size of a square, which is made to be a specific proportion of the screen to ensure everything fits.
-    { return (int)fmin(screenHeight/(ROWS+2*PADDING),screenWidth/(COLS+2*PADDING_HORIZ)); }
+    { return (int)fmin(screenHeight/(ROWS+2*PADDING),screenWidth/(GRID_LEFT + GRID_RIGHT)); }
+
+    // fixme this should not be needed if we are assuming we only have one window.
+    // wraps sdl_rect to automatically scale by grid, honoring padding.
+    struct Rect : public SDL_Rect {
+        // initialized via game instance in Game.cpp.
+        Rect(int x, int y, int w=1, int h=1);
+    };
 
     // the color of a specific tile on the grid
     Color grid[COLS][ROWS];
@@ -72,15 +79,7 @@ private:
     void holdShape();
     void placeShape();
     bool moveCurShapeDown();
-    // FIXME perhaps this sort of logic should go into Display? Would require a rather deep refactor though.
     // render methods (scene.cpp)
-    void drawShape(const Shape&);
-    void drawSquare(int x,int y);
-    void drawSquare(int x,int y,int,int,int);
-    void drawSquare(int x, int y, Color color)
-    { drawSquare(x,y,color.r,color.g,color.b); }
-    // renders text at location. x and y are the location of the top left point.
-    void renderText(const char*, int x, int y, Color=0xFFFFFF, int scale=1) const;
     void renderPreview(int offset, Shape*, const char*);
     void prepareScene(Color={255 / 3, 255 / 3, 255 / 3});
     void presentScene();
