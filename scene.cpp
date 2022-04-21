@@ -53,6 +53,12 @@ void Game::initScene() {
     }
 }
 
+void Game::destructScene() {
+    SDL_DestroyWindow(window);
+    TTF_CloseFont(font);
+    SDL_Quit();
+}
+
 void drawSquare(int x, int y);
 void drawSquare(int x, int y, Color c);
 void drawShape(const Shape&);
@@ -62,15 +68,15 @@ void Game::presentScene()
     SDL_RenderPresent(renderer);
 }
 
-void renderText(const std::string& label, int x, int y, Color color=0xFFFFFF, int scale=1) {
+void renderText(const std::string& label, int x, int y, int w, int h, Color color=0xFFFFFF) {
     SDL_Surface *textSurface = TTF_RenderText_Solid(font, label.c_str(), {color.r,color.g,color.b});
-
     SDL_Texture *textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
-
     SDL_FreeSurface(textSurface);
-
-    Game::Rect rect(x, y,4 * scale,scale);
+    Game::Rect rect(x,y,w,h);
     SDL_RenderCopy(renderer, textTexture, nullptr, &rect);
+}
+void renderText(const std::string& label, int x, int y, Color color=0xFFFFFF) {
+    renderText(label,x,y,4,1,color);
 }
 
 void Game::renderPreview(int offset, Shape* shape, const char* label) {
@@ -98,23 +104,39 @@ void Game::renderPreview(int offset, Shape* shape, const char* label) {
 void Game::prepareScene(Color backgroundColor)
 {
     if(gameState != GameState::PLAY)
-        backgroundColor = backgroundColor.hex()/2;
+        backgroundColor = 0x5b02ce;
     SDL_SetRenderDrawColor(renderer, backgroundColor.r, backgroundColor.g, backgroundColor.b, 255);
     SDL_RenderClear(renderer);
     // render grid
     for(int x=0; x < COLS; x++) for(int y=0; y < ROWS; y++) {
             drawSquare(x,y,grid[x][y]);
-        }
+    }
     renderPreview(PADDING-GRID_LEFT, nxtShape, "Next Piece"); // next piece on left
     // fixme it would be cool to be able to just put GRID_RIGHT here.
     auto right = COLS+PADDING;
     renderPreview(right, heldShape, "Held Piece"); // hold piece on right
     if(curShape != nullptr) drawShape(*curShape);
-    if(gameState != GameState::START) {
-        int ly = COLS/2-1;
-        renderText(string("Level: ") + to_string(level), right, ly++);
-        renderText(string("To Next: ") + to_string(toNextLevel), right, ly++);
+
+    if(gameState == GameState::START || gameState == GameState::GAME_OVER) {
+        renderText("Press Start Game", 1, 2, COLS-2,COLS/2-1);
+//        if(gameState == GameState::GAME_OVER) {
+//            // put it right underneath
+//            renderText("to Restart", right+1, PREVIEW_SIZE+1);
+//        }
     }
+
+    int ly = ROWS*1/3;
+    if(gameState != GameState::START) {
+        renderText(string("Level: ") + to_string(level), right, ly);
+        ly++;
+        renderText(string("To Next: ") + to_string(toNextLevel), right, ly);
+
+        if(gameState == GameState::GAME_OVER) {
+            ly += ROWS/4;
+            renderText("High Scores", right, ROWS*3/4); /*700,3,10,3*/
+        }
+    }
+
 
 }
 

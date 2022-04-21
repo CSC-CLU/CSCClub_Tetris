@@ -36,6 +36,7 @@ private:
     GameState gameState;
 
     void initScene();
+    void destructScene();
     void processInput();
     void gameLoop();
     void play();
