@@ -56,22 +56,27 @@ void Game::presentScene()
     SDL_RenderPresent(renderer);
 }
 
+void Game::renderText(const char* label, int x, int y, Color color, int scale) const {
+    SDL_Surface *textSurface = TTF_RenderText_Solid(font, label, {color.r,color.g,color.b});
+
+    SDL_Texture *textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+
+    SDL_FreeSurface(textSurface);
+
+    SDL_Rect rect = {
+            x * tileLength(),
+            y * tileLength(),
+            4 * scale * tileLength(),
+            scale * tileLength(),
+    };
+
+    SDL_RenderCopy(renderer, textTexture, nullptr, &rect);
+}
+
 void Game::renderPreview(int offset, Shape* shape, const char* label) {
     if(gameState == GameState::PLAY) {
         // ／(^ㅅ^)＼ Next Piece text
-        SDL_Surface *textSurface = TTF_RenderText_Solid(font, label, {255, 255, 255});
-
-        SDL_Texture *textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
-
-        SDL_FreeSurface(textSurface);
-
-        SDL_Rect rect;
-        rect.x = gridLeft() + offset * tileLength();
-        rect.y = tileLength() * 3;
-        rect.w = tileLength() * 4;
-        rect.h = tileLength() * 1;
-
-        SDL_RenderCopy(renderer, textTexture, NULL, &rect);
+        renderText(label,PADDING_HORIZ + offset, 3);
     }
 
     Color previewColor = 0x888888;

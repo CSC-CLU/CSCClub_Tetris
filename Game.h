@@ -8,6 +8,8 @@
 #include <GL/gl.h>
 #include <SDL2/SDL_ttf.h>
 
+#include<string>
+
 #include<cmath>
 #include "Shape.h"
 #include "Color.h"
@@ -77,6 +79,8 @@ private:
     void drawSquare(int x,int y,int,int,int);
     void drawSquare(int x, int y, Color color)
     { drawSquare(x,y,color.r,color.g,color.b); }
+    // renders text at location. x and y are the location of the top left point.
+    void renderText(const char*, int x, int y, Color=0xFFFFFF, int scale=1) const;
     void renderPreview(int offset, Shape*, const char*);
     void prepareScene(Color={255 / 3, 255 / 3, 255 / 3});
     void presentScene();
