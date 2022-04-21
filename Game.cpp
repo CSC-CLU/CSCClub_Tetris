@@ -2,6 +2,8 @@
 // Created by kali on 2/28/22.
 //
 
+// ／(^ㅅ^)＼ This is me commenting
+
 #include "Game.h"
 #include <SDL2/SDL.h>
 #include <iostream>
