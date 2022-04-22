@@ -292,8 +292,7 @@ void Game::processInput()
                         nxtShape = cyclePiece(-1);
                         break;
                     case 40:
-                        // move it down all the way
-                        while(moveCurShapeDown());
+                        instantDrop();
                         break;
                     case SDL_SCANCODE_DELETE:
                         loadNewShape();

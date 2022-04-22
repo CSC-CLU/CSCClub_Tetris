@@ -80,7 +80,7 @@ private:
     void holdShape();
     void placeShape();
     bool moveCurShapeDown();
-    void instantDrop() { while(moveCurShapeDown()); }
+    void instantDrop() { while(moveCurShapeDown()) score += 2; }
     // FIXME perhaps this sort of logic should go into Display? Would require a rather deep refactor though.
     // render methods (scene.cpp)
     void renderPreview(int offset, Shape*, const char*);
