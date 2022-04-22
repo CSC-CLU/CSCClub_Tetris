@@ -126,6 +126,7 @@ void Game::play() {
     }
     gameState = GameState::PLAY;
     level=0; incLevel();
+    score = 0;
     bag = Bag(); // refresh the bag
     // gravity logic
     time = dropDelay();
