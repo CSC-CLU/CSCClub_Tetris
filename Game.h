@@ -92,6 +92,9 @@ private:
     static constexpr int8_t LEVEL_CLEAR = 10;
     int toNextLevel;
     void incLevel();
+    int score = 0;
+    void calcScore(int rowsCleared);
+    bool boardClear();
     // timer until a piece drops via gravity
     double time;
     bool fastFall;
