@@ -347,7 +347,6 @@ void Game::gameLoop()
         processInput();
         if(gameState == GameState::EXIT) break;
         if(gameState == GameState::PLAY) applyGravity();
-        std::cout << score << std::endl;
     }
 }
 void Game::applyGravity()
