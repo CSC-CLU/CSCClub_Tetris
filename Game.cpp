@@ -218,13 +218,9 @@ bool handleArduinoCommands(SDL_Keysym key, bool enable) {
     return true;
 }
 
-bool interpretRange(int val) {
-    switch(val*4/255) {
-        case 0:
-            return -1;
-        case 3:
-            return 1;
-    }
+int map(int val, int l1, int l2, int r1, int r2) {
+    if(val > l1 && val < l2) return 1;
+    if(val > r1 && val < r2) return -1;
     return 0;
 }
 
@@ -341,17 +337,16 @@ void Game::processInput()
         // nunchuck controls
         auto &n = pc->nunchuck;
 
-        int r = interpretRange(n.joyX);
-        if(r != cur.move) cur.move += r;
 
-        r = interpretRange(n.joyY);
-        if(r == -1) pc->fastDrop |= true;
+        int move = map(n.joyX,32,100,165,225);
+        if(move != cur.move) cur.move += move;
+        if(map(n.joyX,32,100,165,225) == -1) pc->fastDrop |= true;
 
         cur.holdPiece |= n.btnC;
         cur.instantDrop |= n.btnZ;
 
-        r = interpretRange(n.accel.roll);
-        if(r != cur.rotate) cur.rotate += r;
+        int roll = map(pc->nunchuck.accel.roll,40,100,150,200);
+        if(roll != cur.rotate) cur.rotate += roll;
     }
     if(cur.holdPiece && !prev.holdPiece) holdShape();
     bool lock = false;
