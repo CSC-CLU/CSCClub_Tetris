@@ -9,6 +9,7 @@
 #include <bitset>
 #include <string>
 #include <sstream>
+#include <SDL2/SDL_timer.h>
 #include "controller.h"
 #include "../Color.h"
 
@@ -167,9 +168,12 @@ void Controller::setTowerLights(bool LR, bool LG, bool LB, bool LZ, bool RR, boo
 
 void Controller::playAnimation(Animation animation)
 {
-    stringstream buffer;
-    char command[4] = {'A', 'N', 0, '\n'};
-    buffer<<to_string((int)animation);
-    buffer>>command[2];
-    char statusCode = serial.writeString(command);
+    for(int i=0; i<30; i++) {
+        stringstream buffer;
+        char command[4] = {'A', 'N', 0, '\n'};
+        buffer<<to_string((int)animation);
+        buffer>>command[2];
+        char statusCode = serial.writeString(command);
+        SDL_Delay(1);
+    }
 }

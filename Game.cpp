@@ -205,6 +205,12 @@ void Game::processInput()
                     case SDL_SCANCODE_W:
                         curShape->y--;
                         break;
+                    case SDL_SCANCODE_2:
+                        pc->playAnimation(arduino::Controller::Animation::FLATLINE);
+                        continue;
+                    case SDL_SCANCODE_1:
+                        pc->playAnimation(arduino::Controller::Animation::TOWER_LIGHT);
+                        continue;
                     case SDL_SCANCODE_S:
                         toggleFastDrop(true);
                         //std::cout << "fast fall on" << std::endl;
@@ -390,7 +396,7 @@ void Game::gameLoop()
     {
         prepareScene();
         presentScene();
-        SDL_Delay(DELAY);
+        SDL_Delay(DELAY*3/4); // give it a bit of extra time to get a response.
         pc->refreshArduinoStatus();
         processInput();
         if(gameState == GameState::EXIT) break;
