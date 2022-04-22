@@ -219,8 +219,8 @@ bool handleArduinoCommands(SDL_Keysym key, bool enable) {
 }
 
 int map(int val, int l1, int l2, int r1, int r2) {
-    if(val > l1 && val < l2) return 1;
-    if(val > r1 && val < r2) return -1;
+    if(val > l1 && val < l2) return -1;
+    if(val > r1 && val < r2) return 1;
     return 0;
 }
 
@@ -340,7 +340,7 @@ void Game::processInput()
 
         int move = map(n.joyX,32,100,165,225);
         if(move != cur.move) cur.move += move;
-        if(map(n.joyX,32,100,165,225) == -1) pc->fastDrop |= true;
+        if(map(n.joyY,35,80,165,225) == -1) cur.fastDrop |= true;
 
         cur.holdPiece |= n.btnC;
         cur.instantDrop |= n.btnZ;
