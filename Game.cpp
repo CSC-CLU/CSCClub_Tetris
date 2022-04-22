@@ -166,6 +166,7 @@ void Game::play() {
     fastFall = false;
     locked = false;
     delete heldShape;
+    heldShape = nullptr;
     delete nxtShape;
     nxtShape = new Shape(bag.draw());
     loadNewShape();
