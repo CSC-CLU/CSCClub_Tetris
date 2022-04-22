@@ -219,8 +219,11 @@ bool handleArduinoCommands(SDL_Keysym key, bool enable) {
 }
 
 bool interpretRange(int val) {
-    if(abs(val) > 100) {
-        return abs(val)/val;
+    switch(val*4/255) {
+        case 0:
+            return -1;
+        case 3:
+            return 1;
     }
     return 0;
 }

@@ -96,7 +96,7 @@ private:
     constexpr static uint32_t DELAY = 16;
     // timer logic
     int level;
-    static constexpr int8_t LEVEL_CLEAR = 10;
+    static constexpr int8_t LEVEL_CLEAR = 3;
     int toNextLevel;
     void incLevel();
     bool boardClear();

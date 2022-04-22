@@ -21,7 +21,8 @@ void Game::initScene() {
             SDL_WINDOWPOS_CENTERED,
             screenWidth,
             screenHeight,
-            SDL_WINDOW_OPENGL);
+            SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_MAXIMIZED
+    );
 
     if(window == nullptr) {
         throw "SDL Window could not be created";
