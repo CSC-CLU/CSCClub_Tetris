@@ -140,11 +140,13 @@ void Game::placeShape() {
             lowestY++;
         }
     }
+#ifdef TETRIS_PROGRESS_INDICATOR
     switch (lowestY*3/COLS) {
         case 0: pc->setTowerLights(false,false,true,false); break;
         case 1: pc->setTowerLights(false,true,false,false); break;
         case 2: pc->setTowerLights(true,false,false,false); break;
     }
+#endif
     calcScore(rowsComplete);
     loadNewShape();
 }
