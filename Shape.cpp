@@ -98,11 +98,13 @@ Shape::Shape(Piece type)
         case J:
         {
             color = 0x00EEFF;
+            /* X O X
+                   X */
             shape = new Square[4] {
+                {-1, 0},
                 {0, 0},
                 {1, 0},
-                {2, 0},
-                {2, 1}
+                {1, 1}
             };
             break;
         }
@@ -110,11 +112,13 @@ Shape::Shape(Piece type)
         case L:
         {
             color = 0xFF0000;
+            //  X O X
+            //  X
             shape = new Square[4]{
-                {0, 0},
-                {1, 0},
-                {2, 0},
-                {0, 1}
+                {-1,+1},
+                {-1,+0},
+                {+0,+0},
+                {+1,+0}
             };
             break;
         }
