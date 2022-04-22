@@ -396,12 +396,14 @@ void Game::gameLoop()
     {
         prepareScene();
         presentScene();
-        SDL_Delay(DELAY*3/4); // give it a bit of extra time to get a response.
-        pc->refreshArduinoStatus();
+        int delay = DELAY;
+        if(pc->connected) delay -= arduino::EXPECTED_RESPONSE_TIME;
+        SDL_Delay(delay); // give it a bit of extra time to get a response.
+        if(pc->connected) pc->refreshArduinoStatus();
         processInput();
         if(gameState == GameState::EXIT) break;
         if(gameState == GameState::PLAY) applyGravity();
-        std::cout << score << std::endl;
+        //std::cout << score << std::endl;
     }
 }
 void Game::applyGravity()

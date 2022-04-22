@@ -15,6 +15,9 @@
 #include "../Color.h"
 
 namespace arduino {
+
+    constexpr auto EXPECTED_RESPONSE_TIME = 6;
+
     class Controller {
     public:
         serialib serial;
@@ -34,27 +37,40 @@ namespace arduino {
         int joystick2X;
         int joystick2Y;
         bool joystickB2;
-        int joystickSX;
-        int joystickSY;
-        bool buttonC;
-        bool buttonZ;
-        int accelerometerAX;
-        int accelerometerAY;
-        int accelerometerAZ;
-        int accelerometerAP;
-        int accelerometerAR;
+        struct {
+            int joyX;
+            int joyY;
+            bool btnC;
+            bool btnZ;
+            struct { int AX,AY,AZ,pitch,roll; } accel;
+        } nunchuck;
         bool unused1;
         bool unused2;
+
+        // disregard inputs if not connected.
+        bool connected;
+        bool nunchuckEnabled;
+
+        struct {
+            bool green=false, yellow=false, red=false, buzzer=false;
+        } towerLights; // both are currently aligned.
+
     public:
         explicit Controller(char serialPort[]=SERIAL_PORT);
         virtual ~Controller();
         void refreshArduinoStatus();
+
         void enableNunchuck();
         void disableNunchuck();
-        void setKeyLights(Color color);
+        void setKeyLights(Color color) { setKeyLights(color.r,color.g,color.b); };
         void setKeyLights(int R, int G, int B);
         void setTowerLights(char left, char right);
-        void setTowerLights(bool G, bool Y, bool R, bool Z) {setTowerLights(G,Y,R,Z,G,Y,R,Z);}
+        void updateTowerLights() { setTowerLights(towerLights.green,towerLights.yellow,towerLights.red,towerLights.buzzer); }
+        void setTowerLights(bool G, bool Y, bool R, bool Z)
+        { setTowerLights(
+                towerLights.green = G,towerLights.yellow = Y,towerLights.red = R,towerLights.buzzer = Z,
+                G,Y,R,Z);
+        }
         void setTowerLights(bool LR, bool LG, bool LB, bool LZ, bool RR, bool RG, bool RB, bool RZ);
         enum class Animation {TOWER_LIGHT=1, FLATLINE=2};
         void playAnimation(Animation);

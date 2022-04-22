@@ -9,9 +9,7 @@
 #include <bitset>
 #include <string>
 #include <sstream>
-#include <SDL2/SDL_timer.h>
 #include "controller.h"
-#include "../Color.h"
 
 using namespace arduino;
 using namespace std;
@@ -24,7 +22,8 @@ Controller::Controller(char serialPort[])
     // Connection to serial port
     char statusCode = serial.openDevice(this->serialPort, 57600, SERIAL_DATABITS_8, SERIAL_PARITY_NONE, SERIAL_STOPBITS_1);
 
-    if (statusCodes.openDevice(statusCode) == false) throw 1;
+    connected = statusCodes.openDevice(statusCode);
+    if(!connected) cout << "WARNING: Arduino not found on port " << serialPort << endl;
 
     statusCode = serial.flushReceiver();
 
@@ -45,6 +44,7 @@ void Controller::refreshArduinoStatus()
     // fixme should populate the controller with default values if nothing is read.
     if (statusCode > 0)
         decodeInputs(bytes);
+    else cout << "Communication Error (CT), got" << statusCode << endl;
 }
 
 void Controller::decodeInputs(char* bytes)
@@ -65,41 +65,44 @@ void Controller::decodeInputs(char* bytes)
     this->joystick2X = ((bytes[3] & 0b00111111) << 2) | ((bytes[4] & 0b00110000) >> 4);
     this->joystick2Y = ((bytes[4] & 0b00001111) << 4) | ((bytes[5] & 0b00111100) >> 2);
     this->joystickB2 = !((bytes[13] & 0b00000100) >> 2);
-    this->joystickSX = ((bytes[6] & 0b00111111) << 2) | ((bytes[7] & 0b00110000) >> 4);
-    this->joystickSY = ((bytes[7] & 0b00001111) << 4) | ((bytes[8] & 0b00111100) >> 2);
-    this->buttonC = ((bytes[13] & 0b00000010) >> 1);
-    this->buttonZ = (bytes[13] & 0b00000001);
-    this->accelerometerAX = ((bytes[9] & 0b00111111) << 2) | ((bytes[10] & 0b00110000) >> 4);
-    this->accelerometerAY = ((bytes[10] & 0b00001111) << 4) | ((bytes[11] & 0b00111100) >> 2);
-    this->accelerometerAZ = ((bytes[12] & 0b00111111) << 2) | ((bytes[13] & 0b00110000) >> 4);
-    this->accelerometerAP = ((bytes[14] & 0b00111111) << 2) | ((bytes[15] & 0b00110000) >> 4);
-    this->accelerometerAR = ((bytes[15] & 0b00001111) << 4) | ((bytes[16] & 0b00111100) >> 2);
+    nunchuck = {
+            ((bytes[6] & 0b00111111) << 2) | ((bytes[7] & 0b00110000) >> 4),
+            ((bytes[7] & 0b00001111) << 4) | ((bytes[8] & 0b00111100) >> 2),
+            static_cast<bool>(((bytes[13] & 0b00000010) >> 1)),
+            static_cast<bool>((bytes[13] & 0b00000001)),
+            {
+                    ((bytes[9] & 0b00111111) << 2) | ((bytes[10] & 0b00110000) >> 4),
+                    ((bytes[10] & 0b00001111) << 4) | ((bytes[11] & 0b00111100) >> 2),
+                    ((bytes[12] & 0b00111111) << 2) | ((bytes[13] & 0b00110000) >> 4),
+                    ((bytes[14] & 0b00111111) << 2) | ((bytes[15] & 0b00110000) >> 4),
+                    ((bytes[15] & 0b00001111) << 4) | ((bytes[16] & 0b00111100) >> 2)
+            }
+    };
     this->unused1 = ((bytes[16] & 0b00000010) >> 1);
     this->unused2 = (bytes[16] & 0b00000001);
 
     cout<<"Buttons: "<<bitset<8>(buttons).to_string()<<endl;
     cout<<"Joystick 1: ("<<to_string(joystick1X)<<", "<<to_string(joystick1Y)<<") Button: "<<to_string(joystickB1)<<endl;
     cout<<"Joystick 2: ("<<to_string(joystick2X)<<", "<<to_string(joystick2Y)<<") Button: "<<to_string(joystickB2)<<endl;
-    cout<<"Joystick N: ("<<to_string(joystickSX)<<", "<<to_string(joystickSY)<<")";
-    cout<<" Button C: "<<to_string(buttonC)<<" Button Z: "<<to_string(buttonZ)<<endl;
-    cout<<"Accelerometer A: ("<<to_string(accelerometerAX)<<", "<<to_string(accelerometerAY)<<", "<<to_string(accelerometerAZ)<<")"<<endl;
-    cout<<"Rotations (P,R): ("<<to_string(accelerometerAP)<<", "<<to_string(accelerometerAR)<<")"<<endl;
+    cout << "Joystick N: (" << to_string(nunchuck.joyX) << ", " << to_string(nunchuck.joyY) << ")";
+    cout<<" Button C: "<<to_string(nunchuck.btnC)<<" Button Z: "<<to_string(nunchuck.btnZ)<<endl;
+    cout<<"Accelerometer A: ("<<to_string(nunchuck.accel.AX)<<", "<<to_string(nunchuck.accel.AY)<<", "<<to_string(nunchuck.accel.AZ)<<")"<<endl;
+    cout<<"Rotations (P,R): ("<<to_string(nunchuck.accel.pitch)<<", "<<to_string(nunchuck.accel.roll)<<")"<<endl;
     // cout<<bytes<<endl;
 }
 
 void Controller::enableNunchuck()
 {
+    nunchuckEnabled = true;
     char statusCode = serial.writeString("CFNCE\n");
 }
 
 void Controller::disableNunchuck()
 {
+    nunchuckEnabled = false;
     char statusCode = serial.writeString("CFNCD\n");
 }
 
-void Controller::setKeyLights(Color color) {
-    setKeyLights(color.r,color.g,color.b);
-}
 void Controller::setKeyLights(int R, int G, int B)
 {
     stringstream buffer;
@@ -168,12 +171,9 @@ void Controller::setTowerLights(bool LR, bool LG, bool LB, bool LZ, bool RR, boo
 
 void Controller::playAnimation(Animation animation)
 {
-    for(int i=0; i<30; i++) {
-        stringstream buffer;
-        char command[4] = {'A', 'N', 0, '\n'};
-        buffer<<to_string((int)animation);
-        buffer>>command[2];
-        char statusCode = serial.writeString(command);
-        SDL_Delay(1);
-    }
+    stringstream buffer;
+    char command[4] = {'A', 'N', 0, '\n'};
+    buffer<<to_string((int)animation);
+    buffer>>command[2];
+    char statusCode = serial.writeString(command);
 }
