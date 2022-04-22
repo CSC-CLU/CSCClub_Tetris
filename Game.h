@@ -71,6 +71,11 @@ public:
     bool moveRows(int y);
 
     bool clearRow(int y);
+
+    int score = 0;
+    void calcScore(int rowsCleared);
+    constexpr static int HIGH_SCORES = 5;
+    int highScores[HIGH_SCORES];
 private:
     Bag bag; // for drawing pieces
     // shape logic
@@ -94,8 +99,6 @@ private:
     static constexpr int8_t LEVEL_CLEAR = 10;
     int toNextLevel;
     void incLevel();
-    int score = 0;
-    void calcScore(int rowsCleared);
     bool boardClear();
     // timer until a piece drops via gravity
     double time;

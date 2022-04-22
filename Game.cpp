@@ -23,6 +23,8 @@ Game::Game(int screenWidth, int screenHeight)
 , gameState(GameState::START)
 {
     gameInstance = this;
+    // set high scores to 0.
+    for(int& highScore : highScores) highScore = 0;
 }
 
 // sigh...
@@ -63,7 +65,20 @@ void Game::setCurShape(Shape *shape) {
     // todo it might be nice to make curShape a reference rather than a pointer, but it would require either a getter method that autocalls this one or more delicate handling of the curShape variable to ensure it never holds a null pointer.
     shape->setPos(COLS/2);
     if(shape->isInvalidState()) {
+        // this is when the game terminates
         gameState = GameState::GAME_OVER;
+        // record high score
+        int toAdd = this->score;
+        bool added = false;
+        for(int &highScore : highScores) {
+            // this is lazy since after the first substitution the next ones will all be shifted.
+            if(toAdd > highScore) {
+                added = true;
+                int temp = highScore;
+                highScore = toAdd;
+                toAdd = temp;
+            }
+        }
         return; // terminate logic
     }
     delete curShape;

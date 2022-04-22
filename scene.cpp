@@ -141,9 +141,23 @@ void Game::prepareScene(Color backgroundColor)
         ly++;
         renderText(string("To Next: ") + to_string(toNextLevel), right, ly);
 
-        if(gameState == GameState::GAME_OVER) {
-            ly += ROWS/4;
-            renderText("High Scores", right, ROWS*3/4); /*700,3,10,3*/
+        if(gameState > GameState::START && highScores[0] > 0) {
+            ly = ROWS - HIGH_SCORES - 2;
+            renderText("High Scores", right, ly,4,1); /*700,3,10,3*/
+            renderText("___________",right,ly);
+            bool highScoreFound = false;
+            int n = 0;
+            for(int highScore : highScores) {
+                if(highScore == 0) break;
+                Color dispColor = 0xFFFFFF;
+                if(gameState == GameState::GAME_OVER && !highScoreFound && highScore == score)  {
+                    dispColor = 0xfbbd00;
+                    highScoreFound = true;
+                }
+                string display = to_string(highScore);
+                while(display.length() < 5) display.insert(0," ");
+                renderText(to_string(++n) + "  " + display, right, ++ly, dispColor);
+            }
         }
     }
 
