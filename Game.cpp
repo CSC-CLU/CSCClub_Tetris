@@ -107,6 +107,7 @@ void Game::incLevel() {
 
 void Game::placeShape() {
     Shape& s = *curShape;
+    int rowsComplete = 0;
     for(int i=0; i < Shape::N_SQUARES; i++) {
         grid[s[i].x+s.x][s[i].y+s.y] = curShape->color;
     }
@@ -115,8 +116,10 @@ void Game::placeShape() {
         if(rowComplete(s[i].y + s.y))
         {
             moveRows(s[i].y + s.y);
+            rowsComplete += 1;
         }
     }
+    calcScore(rowsComplete);
     loadNewShape();
 }
 
@@ -312,6 +315,64 @@ bool Game::clearRow(int y)
     return true;
 }
 
+void Game::calcScore(int rowsCleared)
+{
+    if(rowsCleared == 0)
+    {
+        return;
+    }
+    else if(boardClear())
+    {
+        switch(rowsCleared)
+        {
+            case 1:
+                score += 800 * level;
+                break;
+            case 2:
+                score += 1200 * level;
+                break;
+            case 3:
+                score += 1800 * level;
+                break;
+            case 4:
+                score += 2000 * level;
+                break;
+            default:
+                std::cout << "score calculation error" << std::endl;
+        }
+    }
+    else
+    {
+        switch(rowsCleared)
+        {
+            case 1:
+                score += 100 * level;
+                break;
+            case 2:
+                score += 300 * level;
+                break;
+            case 3:
+                score += 500 * level;
+                break;
+            case 4:
+                score += 800 * level;
+                break;
+            default:
+                std::cout << "score calculation error" << std::endl;
+        }
+    }
+}
+
+bool Game::boardClear()
+{
+    for(int i = 0; i < ROWS; ++i)
+    {
+        if(!(grid[i][COLS] == Color()))
+            return false;
+    }
+    return true;
+}
+
 void Game::gameLoop()
 {
     while (true)
@@ -323,6 +384,7 @@ void Game::gameLoop()
         processInput();
         if(gameState == GameState::EXIT) break;
         if(gameState == GameState::PLAY) applyGravity();
+        std::cout << score << std::endl;
     }
 }
 void Game::applyGravity()
@@ -331,6 +393,9 @@ void Game::applyGravity()
     while(time <= 0) {
         if(curShape->moveDown()) {
             time += dropDelay();
+            if(fastFall){
+                score += 1;
+            }
             locked = false;
         } else {
             // shape cannot move down anymore.
