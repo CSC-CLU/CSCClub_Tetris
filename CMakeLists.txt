@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 14)
 
 find_package(SDL2 REQUIRED)
 
-find_package(SDL_ttf REQUIRED)
+#find_package(SDL_ttf REQUIRED)
 
 include_directories(${SDL2_INCLUDE-DIRS} ${SDL2_TTF_INCLUDE_DIR})
 
