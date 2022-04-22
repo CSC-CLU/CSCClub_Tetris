@@ -1,13 +1,14 @@
 /**
  * @file /SerialCommunications_Testing.cpp
  * @author Eric Heinke
- * @date February 7 2022
+ * @date April 21 2022
  * @brief File containing a test of serial port communication
  */
 
 #include <iostream>
 #include <bitset>
 #include <string>
+#include <sstream>
 
 // Serial library
 #include "lib/serialib.h"
@@ -90,7 +91,7 @@ int main(int argc, char *argv[])
     statusCode = serial.flushReceiver();
 
     // Display status code message
-    statusCodes.flushReceiver(statusCode);
+    // statusCodes.flushReceiver(statusCode);
 
     cout<<"Select operation to perform:"<<endl;
     cout<<"\t1: Get controller status (x1)"<<endl;
@@ -103,30 +104,42 @@ int main(int argc, char *argv[])
     cout<<"> ";
     int mode;
     cin>>mode;
+    // mode = 2;
 
     if (mode == 1)
     {
+        auto start = high_resolution_clock::now();
         serial.writeString("CT\n");
         char* bytes = new char[100];
         statusCode = serial.readString(bytes, '\n', 100, 16);
+        auto stop = high_resolution_clock::now();
         statusCodes.readString(statusCode);
         if (statusCode > 0)
             decodeInputs(bytes);
         delete bytes;
+        auto duration = duration_cast<microseconds>(stop - start);
+        cout << "Responce time: " << duration.count() << "us" << endl;
     }
     else if (mode == 2)
     {
-        for (int i=0; i<10; i++)
+        long timeCount;
+        int reps = 10;
+        for (int i=0; i<reps; i++)
         {
+            auto start = high_resolution_clock::now();
             serial.writeString("CT\n");
             char* bytes = new char[100];
             statusCode = serial.readString(bytes, '\n', 100, 16);
+            auto stop = high_resolution_clock::now();
             statusCodes.readString(statusCode);
-            if (statusCode > 0)
-                decodeInputs(bytes);
+            // if (statusCode > 0)
+            //     decodeInputs(bytes);
             delete bytes;
-            Sleep(500);
+            auto duration = duration_cast<microseconds>(stop - start);
+            timeCount += duration_cast<microseconds>(stop - start).count();
+            Sleep(10);
         }
+        cout<<"Average responce time: "<<to_string(timeCount/reps)<<"us"<<endl;;
     }
     else if (mode == 3)
     {
@@ -136,10 +149,11 @@ int main(int argc, char *argv[])
             char* bytes = new char[100];
             statusCode = serial.readString(bytes, '\n', 100, 16);
             statusCodes.readString(statusCode);
-            if (statusCode > 0)
-                decodeInputs(bytes);
+            // if (statusCode > 0)
+                // cout<<"Read succesfull"<<endl;
+            //     decodeInputs(bytes);
             delete bytes;
-            Sleep(500);
+            // Sleep(10);
         }
     }
     else if (mode == 4)
@@ -201,6 +215,35 @@ int main(int argc, char *argv[])
         // statusCodes.readString(statusCode);
         // cout<<bytes;
         // delete bytes;
+    }
+    else if (mode == -1)
+    {
+        int R, G, B;
+        cout<<"R: ";
+        cin>>R;
+        cout<<"G: ";
+        cin>>G;
+        cout<<"B: ";
+        cin>>B;
+        char command[10] = {'U', 'L', 'K', 0, 0, 0, 0, 0, 0, '\n'};
+        stringstream buffer;
+        if (R < 16)
+            buffer<<'0';
+        buffer<<hex<<R;
+        if (G < 16)
+            buffer<<'0';
+        buffer<<hex<<G;
+        if (B < 16)
+            buffer<<'0';
+        buffer<<hex<<B;
+        buffer>>command[3];
+        buffer>>command[4];
+        buffer>>command[5];
+        buffer>>command[6];
+        buffer>>command[7];
+        buffer>>command[8];
+        cout<<"Setting button color to ("<<R<<", "<<G<<", "<<B<<")"<<endl;
+        serial.writeString(command);
     }
     else
     {

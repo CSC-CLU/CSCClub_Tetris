@@ -1,3 +1,10 @@
+/**
+ * @file TetrisGameControllerV3
+ * @author Eric Heinke
+ * @date April 21 2022
+ * @brief Code for using Arduino as a game controller
+ */
+
 #include <DIO2.h>
 #include <WiiChuck.h>
 #include <Adafruit_NeoPixel.h>
@@ -58,7 +65,7 @@ void setup() {
 
   // Setting up tower LED output pins
   pinMode2f(DP46, OUTPUT); // Tower 1 Green
-  pinMode2f(DP47, OUTPUT); // Tower 1 Yellow
+  pinMode2f(DP45, OUTPUT); // Tower 1 Yellow
   pinMode2f(DP48, OUTPUT); // Tower 1 Red
   pinMode2f(DP49, OUTPUT); // Tower 1 Buzzer
   pinMode2f(DP50, OUTPUT); // Tower 2 Green
@@ -80,10 +87,7 @@ void setup() {
   buttonPixels.clear();
   
   // Tower lights startup animation
-  if (false)
-  {
-    towerLightAnimation();
-  }
+  towerLightAnimation();
 }
 
 void towerLightAnimation()
@@ -260,7 +264,6 @@ void sendControllerStatus()
 
 void setTowerLEDs(byte state)
 {
-  towerLEDState = state;
   digitalWrite2f(DP46, state & 0b10000000); // Tower 1 Green
   digitalWrite2f(DP47, state & 0b01000000); // Tower 1 Yellow
   digitalWrite2f(DP48, state & 0b00100000); // Tower 1 Red
@@ -298,7 +301,7 @@ void loop() {
       {
         // Print status to serial port
         Serial.println("Arduino Game Controller");
-        Serial.println(" * Version: V3");
+        Serial.println(" * Version: V3.1");
         Serial.println(" * Optimized for: Tetris");
         Serial.print(" * System status: ");
         if (echoEnabled) {Serial.print("EE ");} else {Serial.print("ED ");}
@@ -347,10 +350,11 @@ void loop() {
         // Tower Lights
         if (buffer[2] == 'T')
         {
-          char tmp[2] = {buffer[3], buffer[4]};
-          byte towerStatus = (byte) strtol(tmp, NULL, 16);
-//          Serial.println(towerStatus, HEX); // Dubug information
-          setTowerLEDs(towerStatus);
+            char tmp[6] = {'0', '0', '0', '0', buffer[3], buffer[4]};
+          long tmp2 = strtol(tmp, NULL, 16);
+          char tmp3 = (char)(tmp2);
+//          Serial.println(tmp3, HEX); // Dubug information
+          setTowerLEDs(tmp3);
         }
       }
 
@@ -367,6 +371,12 @@ void loop() {
       if (buffer[0] == 'D' && buffer[1] == 'B')
       {
         // Add later
+      }
+
+      delete buffer;
+      // Flush serial reciever
+      while(Serial.available() > 0) {
+        char t = Serial.read();
       }
     }
 
