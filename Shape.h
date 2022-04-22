@@ -84,9 +84,9 @@ struct Shape
         return false;
     }
 
-private:
     // necessary offset for the shape to get rendered in the grid
     Square getStartingPos() const;
+private:
     static bool isInvalidPosition(int x, int y);
     bool isInvalidPosition(Square s) const
     { return isInvalidPosition(s.x+x,s.y+y); }

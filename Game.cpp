@@ -25,6 +25,7 @@ Game::Game(int screenWidth, int screenHeight)
 , gameState(GameState::START)
 {
     gameInstance = this;
+    // for pi, port must be manually specified to be "/dev/ttyACM0"
     pc = new arduino::Controller();
 }
 
@@ -70,6 +71,7 @@ void Game::setCurShape(Shape *shape) {
         pc->playAnimation(arduino::Controller::Animation::FLATLINE);
         return; // terminate logic
     }
+    pc->setKeyLights(shape->color);
     delete curShape;
     curShape = shape;
 }
@@ -105,11 +107,14 @@ void Game::incLevel() {
     toNextLevel = LEVEL_CLEAR;
 }
 
+int lowestY = Game::ROWS;
 void Game::placeShape() {
     Shape& s = *curShape;
     int rowsComplete = 0;
     for(int i=0; i < Shape::N_SQUARES; i++) {
-        grid[s[i].x+s.x][s[i].y+s.y] = curShape->color;
+        int y = s[i].y + s.y;
+        if(y < lowestY) lowestY = y;
+        grid[s[i].x+s.x][y] = curShape->color;
     }
     for(int i = 0; i < Shape::N_SQUARES; i++)
     {
@@ -117,7 +122,13 @@ void Game::placeShape() {
         {
             moveRows(s[i].y + s.y);
             rowsComplete += 1;
+            lowestY++;
         }
+    }
+    switch (lowestY*3/COLS) {
+        case 0: pc->setTowerLights(false,false,true,false); break;
+        case 1: pc->setTowerLights(false,true,false,false); break;
+        case 2: pc->setTowerLights(true,false,false,false); break;
     }
     calcScore(rowsComplete);
     loadNewShape();

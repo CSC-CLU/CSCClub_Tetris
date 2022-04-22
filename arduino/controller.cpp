@@ -10,6 +10,8 @@
 #include <string>
 #include <sstream>
 #include "controller.h"
+#include "../Color.h"
+
 using namespace arduino;
 using namespace std;
 
@@ -94,6 +96,9 @@ void Controller::disableNunchuck()
     char statusCode = serial.writeString("CFNCD\n");
 }
 
+void Controller::setKeyLights(Color color) {
+    setKeyLights(color.r,color.g,color.b);
+}
 void Controller::setKeyLights(int R, int G, int B)
 {
     stringstream buffer;

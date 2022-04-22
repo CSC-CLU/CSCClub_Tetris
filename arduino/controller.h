@@ -12,6 +12,7 @@
 #include "lib/serialib.h"
 // Serial library status code decoding
 #include "DecodeStatusCodes.h"
+#include "../Color.h"
 
 namespace arduino {
     class Controller {
@@ -50,8 +51,10 @@ namespace arduino {
         void refreshArduinoStatus();
         void enableNunchuck();
         void disableNunchuck();
+        void setKeyLights(Color color);
         void setKeyLights(int R, int G, int B);
         void setTowerLights(char left, char right);
+        void setTowerLights(bool G, bool Y, bool R, bool Z) {setTowerLights(G,Y,R,Z,G,Y,R,Z);}
         void setTowerLights(bool LR, bool LG, bool LB, bool LZ, bool RR, bool RG, bool RB, bool RZ);
         enum class Animation {TOWER_LIGHT=1, FLATLINE=2};
         void playAnimation(Animation);
