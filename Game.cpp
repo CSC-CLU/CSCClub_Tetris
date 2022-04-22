@@ -344,8 +344,8 @@ void Game::processInput()
 
         cur.holdPiece |= n.btnC;
         cur.instantDrop |= n.btnZ;
-
-        int roll = map(pc->nunchuck.accel.roll,40,100,150,200);
+        // apparently reversed?
+        int roll = map(pc->nunchuck.accel.roll,40,100,150,220);
         if(roll != cur.rotate) cur.rotate += roll;
     }
     if(cur.holdPiece && !prev.holdPiece) holdShape();
