@@ -360,7 +360,7 @@ void Game::processInput()
         lock = false;
         instantDrop();
     }
-    if(lock) lockPiece();
+    if(lock) time = dropDelay();
 }
 
 // ／(^ㅅ^)＼ Checks if a given row y is complete
