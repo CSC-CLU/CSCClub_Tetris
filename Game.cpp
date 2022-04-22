@@ -159,6 +159,48 @@ struct {
 } cur, prev;
 
 bool held = true; // press a button to start the game.
+
+bool handleArduinoCommands(SDL_Keysym key, bool enable) {
+    switch (key.scancode) {
+        // 1-3 are green/yellow/red respectively. 0 is buzzer.
+        case SDL_SCANCODE_KP_0:
+            pc->towerLights.buzzer = enable;
+            pc->updateTowerLights();
+            break;
+        case SDL_SCANCODE_KP_1: 
+            pc->towerLights.green = enable;
+            pc->updateTowerLights();
+            break;
+        case SDL_SCANCODE_KP_2:
+            pc->towerLights.yellow = enable;
+            pc->updateTowerLights();
+            break;
+        case SDL_SCANCODE_KP_3:
+            pc->towerLights.red = enable;
+            pc->updateTowerLights();
+            break;
+        // after this point everything only happens if enabled.
+        case SDL_SCANCODE_KP_MULTIPLY: if(enable) {
+            if(pc->nunchuckEnabled) pc->disableNunchuck();
+            else pc->enableNunchuck();
+            break;
+        }
+        // enter is flatline, decimal is tower light
+        case SDL_SCANCODE_KP_DECIMAL: if(enable) {
+            pc->playAnimation(arduino::Controller::Animation::TOWER_LIGHT);
+            break;
+        }
+            // fall into next
+        case SDL_SCANCODE_KP_ENTER: if(enable) {
+            pc->playAnimation(arduino::Controller::Animation::FLATLINE);
+            break;
+        }
+        default: return false;
+    }
+    return true;
+}
+
+
 void Game::processInput()
 {
     // fixme there is massive duplication here
@@ -183,6 +225,7 @@ void Game::processInput()
 //                std::cout << evnt.motion.x << " " << evnt.motion.y << std::endl;
 //                break;
             case SDL_KEYUP:
+                if(handleArduinoCommands(evnt.key.keysym, false)) continue;
                 held = false;
                 if(gameState != GameState::PLAY) break;
                 if(evnt.key.keysym.scancode == SDL_SCANCODE_S) {
@@ -191,6 +234,7 @@ void Game::processInput()
                 }
                 break;
             case SDL_KEYDOWN:
+                if(handleArduinoCommands(evnt.key.keysym, true)) continue;
                 if(held) break; else held = true;
                 if(gameState == GameState::START || gameState == GameState::GAME_OVER) {
                     if(evnt.key.keysym.scancode == 40) {
@@ -205,12 +249,6 @@ void Game::processInput()
                     case SDL_SCANCODE_W:
                         curShape->y--;
                         break;
-                    case SDL_SCANCODE_2:
-                        pc->playAnimation(arduino::Controller::Animation::FLATLINE);
-                        continue;
-                    case SDL_SCANCODE_1:
-                        pc->playAnimation(arduino::Controller::Animation::TOWER_LIGHT);
-                        continue;
                     case SDL_SCANCODE_S:
                         toggleFastDrop(true);
                         //std::cout << "fast fall on" << std::endl;
