@@ -345,7 +345,7 @@ void Game::processInput()
         cur.holdPiece |= n.btnC;
         cur.instantDrop |= n.btnZ;
 
-        r = interpretRange(n.accel.AX);
+        r = interpretRange(n.accel.roll);
         if(r != cur.rotate) cur.rotate += r;
     }
     if(cur.holdPiece && !prev.holdPiece) holdShape();
