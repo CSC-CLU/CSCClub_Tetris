@@ -27,8 +27,8 @@ Game::Game(int screenWidth, int screenHeight)
     gameInstance = this;
     // for pi, port must be manually specified to be "/dev/ttyACM0"
     pc = new arduino::Controller();
-    // set high scores to 0.
-    for(int& highScore : highScores) highScore = 0;
+    int scoreMult = HIGH_SCORES;
+    for(int& highScore : highScores) highScore = pow(10,--scoreMult);
 }
 
 // sigh...
@@ -67,7 +67,8 @@ Shape* cyclePiece(int inc) {
 
 void Game::setCurShape(Shape *shape) {
     // todo it might be nice to make curShape a reference rather than a pointer, but it would require either a getter method that autocalls this one or more delicate handling of the curShape variable to ensure it never holds a null pointer.
-    shape->setPos(COLS/2);
+    shape->setPos(0);
+    shape->x = 5;
     if(shape->isInvalidState()) {
         // this is when the game terminates
         gameState = GameState::GAME_OVER;
@@ -325,7 +326,7 @@ void Game::processInput()
     }
     // ARDUINO CONTROLS
     if(gameState == GameState::START || gameState == GameState::GAME_OVER) {
-        if(pc->startButton) play(); else return;
+        if(pc->startButton || pc->nunchuckEnabled && pc->nunchuck.btnC) play(); else return;
     }
     prev = cur;
     cur = {
@@ -347,7 +348,7 @@ void Game::processInput()
         cur.holdPiece |= n.btnC;
         cur.instantDrop |= n.btnZ;
         // apparently reversed?
-        int roll = map(pc->nunchuck.accel.roll,40,100,150,220);
+        int roll = map(pc->nunchuck.accel.roll,150,220,40,100);
         if(roll != cur.rotate) cur.rotate += roll;
     }
     if(cur.holdPiece && !prev.holdPiece) holdShape();

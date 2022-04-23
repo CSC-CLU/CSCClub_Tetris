@@ -41,8 +41,8 @@ struct Shape
     Shape(Piece);
     Shape();
 
-    bool rotateR() { return rotate(1, -1); }
-    bool rotateL() { return rotate(-1, 1); }
+    bool rotateR() { return rotate(-1, +1); }
+    bool rotateL() { return rotate(+1, -1); }
 
     bool moveDown() { return move(0,1); }
     bool moveR() { return move(1,0); }
