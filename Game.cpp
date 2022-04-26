@@ -5,6 +5,7 @@
 #include "Game.h"
 #include <SDL2/SDL.h>
 #include <iostream>
+#include "arduino/controller.h"
 
 void fatalError(std::string errorString)
 {
@@ -16,6 +17,7 @@ void fatalError(std::string errorString)
 }
 
 const Game* gameInstance;
+arduino::Controller* pc;
 Game::Game(int screenWidth, int screenHeight)
 : window(nullptr)
 , screenWidth(screenWidth)
@@ -23,8 +25,10 @@ Game::Game(int screenWidth, int screenHeight)
 , gameState(GameState::START)
 {
     gameInstance = this;
-    // set high scores to 0.
-    for(int& highScore : highScores) highScore = 0;
+    // for pi, port must be manually specified to be "/dev/ttyACM0"
+    pc = new arduino::Controller();
+    int scoreMult = HIGH_SCORES;
+    for(int& highScore : highScores) highScore = pow(10,--scoreMult);
 }
 
 // sigh...
@@ -63,10 +67,12 @@ Shape* cyclePiece(int inc) {
 
 void Game::setCurShape(Shape *shape) {
     // todo it might be nice to make curShape a reference rather than a pointer, but it would require either a getter method that autocalls this one or more delicate handling of the curShape variable to ensure it never holds a null pointer.
-    shape->setPos(COLS/2);
+    shape->setPos(0);
+    shape->x = 5;
     if(shape->isInvalidState()) {
         // this is when the game terminates
         gameState = GameState::GAME_OVER;
+        pc->playAnimation(arduino::Controller::Animation::FLATLINE);
         // record high score
         int toAdd = this->score;
         bool added = false;
@@ -81,6 +87,7 @@ void Game::setCurShape(Shape *shape) {
         }
         return; // terminate logic
     }
+    pc->setKeyLights(shape->color);
     delete curShape;
     curShape = shape;
 }
@@ -112,14 +119,18 @@ bool Game::moveCurShapeDown() {
 
 void Game::incLevel() {
     std::cout << "level: " << ++level << " (speed = " << DELAY/(time = dropDelay()) << "G/" << dropDelay() << "ms)" << std::endl;
+    pc->playAnimation(arduino::Controller::Animation::TOWER_LIGHT);
     toNextLevel = LEVEL_CLEAR;
 }
 
+int lowestY = Game::ROWS;
 void Game::placeShape() {
     Shape& s = *curShape;
     int rowsComplete = 0;
     for(int i=0; i < Shape::N_SQUARES; i++) {
-        grid[s[i].x+s.x][s[i].y+s.y] = curShape->color;
+        int y = s[i].y + s.y;
+        if(y < lowestY) lowestY = y;
+        grid[s[i].x+s.x][y] = curShape->color;
     }
     for(int i = 0; i < Shape::N_SQUARES; i++)
     {
@@ -127,8 +138,16 @@ void Game::placeShape() {
         {
             moveRows(s[i].y + s.y);
             rowsComplete += 1;
+            lowestY++;
         }
     }
+#ifdef TETRIS_PROGRESS_INDICATOR
+    switch (lowestY*3/COLS) {
+        case 0: pc->setTowerLights(false,false,true,false); break;
+        case 1: pc->setTowerLights(false,true,false,false); break;
+        case 2: pc->setTowerLights(true,false,false,false); break;
+    }
+#endif
     calcScore(rowsComplete);
     loadNewShape();
 }
@@ -147,14 +166,70 @@ void Game::play() {
     time = dropDelay();
     fastFall = false;
     locked = false;
+    delete heldShape;
+    heldShape = nullptr;
     delete nxtShape;
     nxtShape = new Shape(bag.draw());
     loadNewShape();
 }
 
+struct {
+    int move=0, rotate=0;
+    bool instantDrop=false,fastDrop=false;
+    bool holdPiece=false;
+} cur, prev;
+
 bool held = true; // press a button to start the game.
+
+bool handleArduinoCommands(SDL_Keysym key, bool enable) {
+    switch (key.scancode) {
+        // 1-3 are green/yellow/red respectively. 0 is buzzer.
+        case SDL_SCANCODE_KP_0:
+            pc->towerLights.buzzer = enable;
+            pc->updateTowerLights();
+            break;
+        case SDL_SCANCODE_KP_1:
+            pc->towerLights.green = enable;
+            pc->updateTowerLights();
+            break;
+        case SDL_SCANCODE_KP_2:
+            pc->towerLights.yellow = enable;
+            pc->updateTowerLights();
+            break;
+        case SDL_SCANCODE_KP_3:
+            pc->towerLights.red = enable;
+            pc->updateTowerLights();
+            break;
+        // after this point everything only happens if enabled.
+        case SDL_SCANCODE_KP_MULTIPLY: if(enable) {
+            if(pc->nunchuckEnabled) pc->disableNunchuck();
+            else pc->enableNunchuck();
+            break;
+        }
+        // enter is flatline, decimal is tower light
+        case SDL_SCANCODE_KP_DECIMAL: if(enable) {
+            pc->playAnimation(arduino::Controller::Animation::TOWER_LIGHT);
+            break;
+        }
+            // fall into next
+        case SDL_SCANCODE_KP_ENTER: if(enable) {
+            pc->playAnimation(arduino::Controller::Animation::FLATLINE);
+            break;
+        }
+        default: return false;
+    }
+    return true;
+}
+
+int map(int val, int l1, int l2, int r1, int r2) {
+    if(val > l1 && val < l2) return -1;
+    if(val > r1 && val < r2) return 1;
+    return 0;
+}
+
 void Game::processInput()
 {
+    // fixme there is massive duplication here
     SDL_Event evnt;
     while(SDL_PollEvent(&evnt))
     {
@@ -176,15 +251,16 @@ void Game::processInput()
 //                std::cout << evnt.motion.x << " " << evnt.motion.y << std::endl;
 //                break;
             case SDL_KEYUP:
+                if(handleArduinoCommands(evnt.key.keysym, false)) continue;
                 held = false;
                 if(gameState != GameState::PLAY) break;
-                if(fastFall && evnt.key.keysym.scancode == SDL_SCANCODE_S) {
-                    fastFall = false;
-                    time = dropDelay();
+                if(evnt.key.keysym.scancode == SDL_SCANCODE_S) {
+                    toggleFastDrop(false);
                     //std::cout << "fast fall off" << std::endl;
                 }
                 break;
             case SDL_KEYDOWN:
+                if(handleArduinoCommands(evnt.key.keysym, true)) continue;
                 if(held) break; else held = true;
                 if(gameState == GameState::START || gameState == GameState::GAME_OVER) {
                     if(evnt.key.keysym.scancode == 40) {
@@ -200,8 +276,7 @@ void Game::processInput()
                         curShape->y--;
                         break;
                     case SDL_SCANCODE_S:
-                        fastFall = true;
-                        resetTime = true;
+                        toggleFastDrop(true);
                         //std::cout << "fast fall on" << std::endl;
                         break; // already reset timer.
                     case SDL_SCANCODE_A:
@@ -245,9 +320,50 @@ void Game::processInput()
                         continue;
                 }
                 if(resetTime) time = dropDelay();
+                return; // don't check arduino
                 //std::cout << evnt.key.keysym.scancode << std::endl;
         }
     }
+    // ARDUINO CONTROLS
+    if(gameState == GameState::START || gameState == GameState::GAME_OVER) {
+        if(pc->startButton || pc->nunchuckEnabled && pc->nunchuck.btnC) play(); else return;
+    }
+    prev = cur;
+    cur = {
+            (int)pc->moveRight - pc->moveLeft,
+            pc->rotateLeft - (int)pc->rotateRight,
+            pc->instantDrop,
+            pc->fastDrop,
+            pc->selectButton,
+    };
+    if(pc->nunchuckEnabled) {
+        // nunchuck controls
+        auto &n = pc->nunchuck;
+
+
+        int move = map(n.joyX,32,100,165,225);
+        if(move != cur.move) cur.move += move;
+        if(map(n.joyY,35,80,165,225) == -1) cur.fastDrop |= true;
+
+        cur.holdPiece |= n.btnC;
+        cur.instantDrop |= n.btnZ;
+        // apparently reversed?
+        int roll = map(pc->nunchuck.accel.roll,40,100,150,220);
+        if(roll != cur.rotate) cur.rotate += roll;
+    }
+    if(cur.holdPiece && !prev.holdPiece) holdShape();
+    bool lock = false;
+    if(cur.move != prev.move) lock = curShape->move(cur.move);
+    if(cur.rotate != prev.rotate) lock = curShape-> rotate(cur.rotate) || lock;
+    if(cur.fastDrop != prev.fastDrop) {
+        lock = false;
+        toggleFastDrop(cur.fastDrop);
+    }
+    if(cur.instantDrop && !prev.instantDrop) {
+        lock = false;
+        instantDrop();
+    }
+    if(lock) time = dropDelay();
 }
 
 // ／(^ㅅ^)＼ Checks if a given row y is complete
@@ -358,7 +474,10 @@ void Game::gameLoop()
     {
         prepareScene();
         presentScene();
-        SDL_Delay(DELAY);
+        int delay = DELAY;
+        if(pc->connected) delay -= arduino::EXPECTED_RESPONSE_TIME;
+        SDL_Delay(delay); // give it a bit of extra time to get a response.
+        if(pc->connected) pc->refreshArduinoStatus();
         processInput();
         if(gameState == GameState::EXIT) break;
         if(gameState == GameState::PLAY) applyGravity();

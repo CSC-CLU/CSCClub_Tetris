@@ -13,7 +13,7 @@
 // Serial library
 #include "lib/serialib.h"
 // Serial library status code decoding
-#include "DecodeStatusCodes.h"
+#include "../DecodeStatusCodes.h"
 
 #include <chrono>
 using namespace std::chrono;

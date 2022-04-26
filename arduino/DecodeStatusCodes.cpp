@@ -1,35 +1,12 @@
-/**
- * @file /SerialCommunications_Testing.cpp
- * @author Eric Heinke
- * @date February 7 2022
- * @brief File contains functions for displaying status message from the return status of Philippe Lucidarme's serial library.
- */
-
-#ifndef DECODESTATUSCODES_H
-#define DECODESTATUSCODES_H
+//
+// Created by Zrp200 on 4/19/2022.
+//
 
 #include <iostream>
+#include "DecodeStatusCodes.h"
 
+using namespace arduino;
 using namespace std;
-
-class DecodeStatusCodes
-{
-public:
-    DecodeStatusCodes();
-    DecodeStatusCodes(bool mode);
-    ~DecodeStatusCodes();
-
-    bool flushReceiver(char code);
-    bool openDevice(char code);
-    bool readBytes(int code);
-    bool readChar(char code);
-    bool readString(int code);
-    bool writeBytes(char code);
-    bool writeChar(char code);
-    bool writeString(char code);
-private:
-    bool showSuccess;
-};
 
 DecodeStatusCodes::DecodeStatusCodes() {showSuccess = true;}
 DecodeStatusCodes::DecodeStatusCodes(bool showSuccess)
@@ -49,13 +26,6 @@ bool DecodeStatusCodes::flushReceiver(char code)
 
 bool DecodeStatusCodes::openDevice(char code)
 {
-    #if defined (_WIN32) || defined(_WIN64)
-        #define SERIAL_PORT "\\\\.\\COM4"
-    #endif
-    #if defined (__linux__) || defined(__APPLE__)
-        #define SERIAL_PORT "/dev/ttyACM0"
-    #endif
-
     if      (code ==  1) {
         if (true)        {printf("Successful connection to %s\n",SERIAL_PORT);}                     return true;}
     else if (code == -1) {printf("Error: device not found %s\n",SERIAL_PORT);                       return false;}
@@ -123,5 +93,3 @@ bool DecodeStatusCodes::writeString(char code)
     else if (code == -1) {cout<<"Error: error while writting data"<<endl;       return false;}
     else                 {cout<<"Error: an unknown error has occured"<<endl;    return false;}
 }
-
-#endif // DECODESTATUSCODES_H
