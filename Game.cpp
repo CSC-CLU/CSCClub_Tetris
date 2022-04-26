@@ -90,6 +90,10 @@ void Game::setCurShape(Shape *shape) {
     pc->setKeyLights(shape->color);
     delete curShape;
     curShape = shape;
+    // reset fall-related variables
+    time = dropDelay();
+    locked = false;
+    fastFall = false;
 }
 
 bool holdUsed = false;
@@ -184,9 +188,6 @@ void Game::play() {
     score = 0;
     bag = Bag(); // refresh the bag
     // gravity logic
-    time = dropDelay();
-    fastFall = false;
-    locked = false;
     getDuration(); // reset reference time
     delete heldShape;
     heldShape = nullptr;
@@ -315,8 +316,7 @@ void Game::processInput()
                         break;
                     case SDL_SCANCODE_TAB:
                         holdShape();
-                        resetTime = true;
-                        break;
+                        continue; // timer handled.
                     case SDL_SCANCODE_EQUALS:
                         incLevel();
                         break;
@@ -341,7 +341,7 @@ void Game::processInput()
                     default:
                         continue;
                 }
-                if(resetTime) time = dropDelay();
+                if(locked && resetTime) time = LOCK_DELAY;
                 return; // don't check arduino
                 //std::cout << evnt.key.keysym.scancode << std::endl;
         }
@@ -374,18 +374,18 @@ void Game::processInput()
         if(roll != cur.rotate) cur.rotate += roll;
     }
     if(cur.holdPiece && !prev.holdPiece) holdShape();
-    bool lock = false;
-    if(cur.move != prev.move) lock = curShape->move(cur.move);
-    if(cur.rotate != prev.rotate) lock = curShape-> rotate(cur.rotate) || lock;
+    bool resetLock = false;
+    if(cur.move != prev.move) resetLock = curShape->move(cur.move);
+    if(cur.rotate != prev.rotate) resetLock = curShape-> rotate(cur.rotate) || resetLock;
     if(cur.fastDrop != prev.fastDrop) {
-        lock = false;
+        resetLock = false;
         toggleFastDrop(cur.fastDrop);
     }
     if(cur.instantDrop && !prev.instantDrop) {
-        lock = false;
+        resetLock = false;
         instantDrop();
     }
-    if(lock) time = dropDelay();
+    if(locked && resetLock) time = LOCK_DELAY;
 }
 
 // ／(^ㅅ^)＼ Checks if a given row y is complete
@@ -517,15 +517,13 @@ void Game::applyGravity()
             fastFall = false;
             if(locked) {
                 // lock delay has been spent, place the shape.
-                locked = false;
                 placeShape();
-                // return to standard drop delay
-                time = dropDelay();
             }
             else
             {
-                // this prevents the shape from being placed instantly, allowing the player to quickly move it before it places.
-                lockPiece();
+                // this prevents the shape from being placed instantly
+                locked = true;
+                time = LOCK_DELAY;
             }
         }
     }
