@@ -118,7 +118,8 @@ bool Game::moveCurShapeDown() {
 }
 
 void Game::incLevel() {
-    std::cout << "level: " << ++level << " (speed = " << DELAY/(time = dropDelay()) << "G/" << dropDelay() << "ms)" << std::endl;
+    //std::cout << "level: " << ++level << " (speed = " << DELAY/(time = dropDelay()) << "G/" << dropDelay() << "ms)" << std::endl;
+    ++level;
     pc->playAnimation(arduino::Controller::Animation::TOWER_LIGHT);
     toNextLevel = LEVEL_CLEAR;
 }
@@ -161,6 +162,17 @@ void Game::placeShape() {
     loadNewShape();
 }
 
+#include<chrono>
+using ms = std::chrono::milliseconds;
+using sc = std::chrono::steady_clock;
+auto curTime = sc::now();
+auto getDuration()
+{
+    auto now = sc::now();
+    auto r = std::chrono::duration_cast<ms>(now - curTime);
+    curTime = now;
+    return r.count();
+}
 void Game::play() {
     if(gameState == GameState::GAME_OVER) {
         for (auto &col: grid)
@@ -175,6 +187,7 @@ void Game::play() {
     time = dropDelay();
     fastFall = false;
     locked = false;
+    getDuration(); // reset reference time
     delete heldShape;
     heldShape = nullptr;
     delete nxtShape;
@@ -483,9 +496,6 @@ void Game::gameLoop()
     {
         prepareScene();
         presentScene();
-        int delay = DELAY;
-        if(pc->connected) delay -= arduino::EXPECTED_RESPONSE_TIME;
-        SDL_Delay(delay); // give it a bit of extra time to get a response.
         if(pc->connected) pc->refreshArduinoStatus();
         processInput();
         if(gameState == GameState::EXIT) break;
@@ -494,7 +504,7 @@ void Game::gameLoop()
 }
 void Game::applyGravity()
 {
-    time -= DELAY;
+    time -= getDuration();
     while(time <= 0) {
         if(curShape->moveDown()) {
             time += dropDelay();

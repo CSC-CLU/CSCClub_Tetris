@@ -92,8 +92,6 @@ private:
     void prepareScene(Color={255 / 3, 255 / 3, 255 / 3});
     void presentScene();
     // control logic (game.cpp)
-    // time (ms) game waits between renders. Also the value of 1G.
-    constexpr static uint32_t DELAY = 16;
     // timer logic
     int level;
     static constexpr int8_t LEVEL_CLEAR = 4;
@@ -115,7 +113,7 @@ private:
     // delay to next fall, in ms.
     double dropDelay() const {
         return
-            fastFall ? DELAY // fastfall speed
+            fastFall ? 1000/30.0 // fastfall is at 30 frames per second.
             : pow(0.8-(level-1)*0.007,level-1)*1000; // standard speed
     };
     // fall logic
