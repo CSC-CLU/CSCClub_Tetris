@@ -109,7 +109,7 @@ private:
         }
     }
     bool locked;
-    void lockPiece() { time = 500; locked = true; }
+    static auto constexpr LOCK_DELAY = 500; // half a second
     // delay to next fall, in ms.
     double dropDelay() const {
         return
