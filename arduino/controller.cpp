@@ -128,14 +128,14 @@ void Controller::setKeyLights(int R, int G, int B)
 void Controller::setTowerLights(char left, char right)
 {
     setTowerLights(
-            (left & 0b00001000) == 1,
-            (left & 0b00000100) == 1,
-            (left & 0b00000010) == 1,
-            (left & 0b00000001) == 1,
-            (right & 0b00001000) == 1,
-            (right & 0b00000100) == 1,
-            (right & 0b00000010) == 1,
-            (right & 0b00000001) == 1
+            (left & 0b00001000) != 0,
+            (left & 0b00000100) != 0,
+            (left & 0b00000010) != 0,
+            (left & 0b00000001) != 0,
+            (right & 0b00001000) != 0,
+            (right & 0b00000100) != 0,
+            (right & 0b00000010) != 0,
+            (right & 0b00000001) != 0
     );
 }
 
@@ -145,27 +145,28 @@ void Controller::setTowerLights(bool LR, bool LG, bool LB, bool LZ, bool RR, boo
     char command[6] = {'U', 'L', 'K', 0, 0, '\n'};
     char tmp = 0;
     if (LR)
-        tmp += 0b10000000;
+        tmp |= 0b10000000;
     if (LG)
-        tmp += 0b01000000;
+        tmp |= 0b01000000;
     if (LB)
-        tmp += 0b00100000;
+        tmp |= 0b00100000;
     if (LZ)
-        tmp += 0b00010000;
+        tmp |= 0b00010000;
     if (RR)
-        tmp += 0b00001000;
+        tmp |= 0b00001000;
     if (RG)
-        tmp += 0b00000100;
+        tmp |= 0b00000100;
     if (RB)
-        tmp += 0b00000010;
+        tmp |= 0b00000010;
     if (RZ)
-        tmp += 0b00000001;
+        tmp |= 0b00000001;
 
     if (tmp < 16)
         buffer<<'0';
     buffer<<hex<<tmp;
     buffer>>command[3];
     buffer>>command[4];
+    command[5] = '\n';
     char statusCode = serial.writeString(command);
 }
 
