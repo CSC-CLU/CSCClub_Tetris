@@ -127,25 +127,34 @@ int lowestY = Game::ROWS;
 void Game::placeShape() {
     Shape& s = *curShape;
     int rowsComplete = 0;
+    // todo should this be a built-in shape function?
+    int lY=4,hY=-4;
     for(int i=0; i < Shape::N_SQUARES; i++) {
         int y = s[i].y + s.y;
-        if(y < lowestY) lowestY = y;
+        if(y < lY) lY = y;
+        if(y > hY) hY = y;
         grid[s[i].x+s.x][y] = curShape->color;
     }
-    for(int i = 0; i < Shape::N_SQUARES; i++)
+    int y = hY;
+    while(y >= lY)
     {
-        if(rowComplete(s[i].y + s.y))
+        if(rowComplete(y))
         {
-            moveRows(s[i].y + s.y);
-            rowsComplete += 1;
-            lowestY++;
+            moveRows(y);
+            rowsComplete++;
+            // rows have been moved, everything is shifted one "down"
+            lY++;
         }
+        else y--;
     }
 #ifdef TETRIS_PROGRESS_INDICATOR
-    switch (lowestY*3/COLS) {
-        case 0: pc->setTowerLights(false,false,true,false); break;
-        case 1: pc->setTowerLights(false,true,false,false); break;
-        case 2: pc->setTowerLights(true,false,false,false); break;
+    if(lY < lowestY += rowsComplete) {
+        lowestY = lY
+        switch (lowestY*3/COLS) {
+            case 0: pc->setTowerLights(false,false,true,false); break;
+            case 1: pc->setTowerLights(false,true,false,false); break;
+            case 2: pc->setTowerLights(true,false,false,false); break;
+        }
     }
 #endif
     calcScore(rowsComplete);
