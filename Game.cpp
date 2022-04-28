@@ -230,7 +230,7 @@ bool handleArduinoCommands(SDL_Keysym key, bool enable) {
             break;
         }
         // enter is flatline, decimal is tower light
-        case SDL_SCANCODE_KP_DECIMAL: if(enable) {
+        case SDL_SCANCODE_KP_PERIOD: if(enable) {
             pc->playAnimation(arduino::Controller::Animation::TOWER_LIGHT);
             break;
         }
