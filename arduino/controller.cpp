@@ -142,7 +142,7 @@ void Controller::setTowerLights(char left, char right)
 void Controller::setTowerLights(bool LR, bool LG, bool LB, bool LZ, bool RR, bool RG, bool RB, bool RZ)
 {
     stringstream buffer;
-    char command[6] = {'U', 'L', 'K', 0, 0, '\n'};
+    char command[10] = {'U', 'L', 'K', 0, 0, 0, 0, 0, 0, '\n'};
     char tmp = 0;
     if (LR)
         tmp |= 0b10000000;
@@ -166,7 +166,6 @@ void Controller::setTowerLights(bool LR, bool LG, bool LB, bool LZ, bool RR, boo
     buffer<<hex<<tmp;
     buffer>>command[3];
     buffer>>command[4];
-    command[5] = '\n';
     char statusCode = serial.writeString(command);
 }
 
