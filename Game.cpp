@@ -518,6 +518,8 @@ void Game::applyGravity()
             if(locked) {
                 // lock delay has been spent, place the shape.
                 placeShape();
+                // placeShape can change the gameState if it was unable to place the new shape.
+                if(gameState == GameState::GAME_OVER) return;
             }
             else
             {
