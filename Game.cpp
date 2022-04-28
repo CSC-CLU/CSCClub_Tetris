@@ -26,7 +26,7 @@ Game::Game(int screenWidth, int screenHeight)
 {
     gameInstance = this;
     // for pi, port must be manually specified to be "/dev/ttyACM0"
-    pc = new arduino::Controller();
+    pc = new arduino::Controller("/dev/ttyACM0");
     int scoreMult = HIGH_SCORES;
     for(int& highScore : highScores) highScore = pow(10,--scoreMult);
 }
