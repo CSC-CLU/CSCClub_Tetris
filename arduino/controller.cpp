@@ -142,8 +142,8 @@ void Controller::setTowerLights(char left, char right)
 void Controller::setTowerLights(bool LR, bool LG, bool LB, bool LZ, bool RR, bool RG, bool RB, bool RZ)
 {
     stringstream buffer;
-    char command[10] = {'U', 'L', 'T', 0, 0, 0, 0, 0, 0, '\n'};
-    char tmp = 0;
+    char command[10] = {'U', 'L', 'T', '0', '0', '0', '0', '0', '0', '\n'};
+    int tmp = 0;
     if (LR)
         tmp |= 0b10000000;
     if (LG)
