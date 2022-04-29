@@ -132,6 +132,16 @@ void Game::incLevel() {
 // the lowest y value containing a color (in other words the one closest to the top).
 // used with tower light tracking, unused otherwise.
 int progress;
+// todo wonder if I should add a sleep call to give it some time to execute
+void updateProgress() {
+    switch (progress*3/Game::ROWS) {
+        case 0: pc->setTowerLights(false,false,true,false); break;
+        case 1: pc->setTowerLights(false,true,false,false); break;
+        case 2: pc->setTowerLights(true,false,false,false); break;
+    }
+}
+// whether to enable progress lights
+bool towerLightProgressTracking = false;
 void Game::placeShape() {
     Shape& s = *curShape;
     int rowsComplete = 0;
@@ -156,17 +166,11 @@ void Game::placeShape() {
     }
     progress = std::min(lY, progress+rowsComplete);
 // this is explicitly opt-in given its general tendency to ruin the arduino.
-#ifdef TETRIS_PROGRESS_INDICATOR
-    // update tower lights according to progress.
-    switch (progress*3/ROWS) {
-        case 0: pc->setTowerLights(false,false,true,false); break;
-        case 1: pc->setTowerLights(false,true,false,false); break;
-        case 2: pc->setTowerLights(true,false,false,false); break;
-    }
-#endif
     calcScore(rowsComplete);
     // todo move before tower light directive, creates increased consistency in key-light colors
     loadNewShape();
+    // update tower lights in accordance to progress
+    if(gameState == GameState::PLAY && towerLightProgressTracking) updateProgress();
 }
 
 #include<chrono>
@@ -227,14 +231,23 @@ bool handleArduinoCommands(SDL_Keysym key, bool enable) {
             pc->towerLights.red = enable;
             pc->updateTowerLights();
             break;
+        case SDL_SCANCODE_KP_DIVIDE: if(enable) {
+            // toggle tower light progress tracking. Disabled by default due to being unstable and breaking things.
+            towerLightProgressTracking = !towerLightProgressTracking;
+            if (towerLightProgressTracking) {
+                updateProgress();
+            } else {
+                pc->setTowerLights(false,false,false,false);
+            }
+            break;
+        }
         // after this point everything only happens if enabled.
         case SDL_SCANCODE_KP_MULTIPLY: if(enable) {
             if(pc->nunchuckEnabled) pc->disableNunchuck();
             else pc->enableNunchuck();
             break;
         }
-        // enter is flatline, decimal is tower light
-        case SDL_SCANCODE_KP_PERIOD: if(enable) {
+        case SDL_SCANCODE_KP_PLUS: if(enable) {
             pc->playAnimation(arduino::Controller::Animation::TOWER_LIGHT);
             break;
         }
