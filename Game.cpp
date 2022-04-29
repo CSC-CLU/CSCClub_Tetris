@@ -68,10 +68,11 @@ Shape* cyclePiece(int inc) {
 void Game::setCurShape(Shape *shape) {
     // todo it might be nice to make curShape a reference rather than a pointer, but it would require either a getter method that autocalls this one or more delicate handling of the curShape variable to ensure it never holds a null pointer.
     shape->setPos(0);
-    shape->x = 5;
+    shape->x = 5; // move roughly to the center of the grid
     if(shape->isInvalidState()) {
         // this is when the game terminates
         gameState = GameState::GAME_OVER;
+        // todo in the future this should probably manually set lights to be off to remove the need to manually reset the tower lights.
         pc->playAnimation(arduino::Controller::Animation::FLATLINE);
         // record high score
         int toAdd = this->score;
@@ -128,12 +129,13 @@ void Game::incLevel() {
     toNextLevel = LEVEL_CLEAR;
 }
 
-int lowestY = Game::ROWS;
+// the lowest y value containing a color (in other words the one closest to the top).
+// used with tower light tracking, unused otherwise.
+int progress;
 void Game::placeShape() {
     Shape& s = *curShape;
     int rowsComplete = 0;
-    // todo should this be a built-in shape function?
-    int lY=4,hY=-4;
+    int lY=ROWS,hY=-1; // range of rows to check
     for(int i=0; i < Shape::N_SQUARES; i++) {
         int y = s[i].y + s.y;
         if(y < lY) lY = y;
@@ -152,17 +154,18 @@ void Game::placeShape() {
         }
         else y--;
     }
+    progress = std::min(lY, progress+rowsComplete);
+// this is explicitly opt-in given its general tendency to ruin the arduino.
 #ifdef TETRIS_PROGRESS_INDICATOR
-    if(lY < lowestY += rowsComplete) {
-        lowestY = lY
-        switch (lowestY*3/COLS) {
-            case 0: pc->setTowerLights(false,false,true,false); break;
-            case 1: pc->setTowerLights(false,true,false,false); break;
-            case 2: pc->setTowerLights(true,false,false,false); break;
-        }
+    // update tower lights according to progress.
+    switch (progress*3/ROWS) {
+        case 0: pc->setTowerLights(false,false,true,false); break;
+        case 1: pc->setTowerLights(false,true,false,false); break;
+        case 2: pc->setTowerLights(true,false,false,false); break;
     }
 #endif
     calcScore(rowsComplete);
+    // todo move before tower light directive, creates increased consistency in key-light colors
     loadNewShape();
 }
 
@@ -193,6 +196,7 @@ void Game::play() {
     heldShape = nullptr;
     delete nxtShape;
     nxtShape = new Shape(bag.draw());
+    progress = ROWS; // lowest Y is at the bottom of the board now.
     loadNewShape();
 }
 
