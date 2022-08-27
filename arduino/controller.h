@@ -58,10 +58,12 @@ namespace arduino {
     public:
         explicit Controller(char serialPort[]=SERIAL_PORT);
         virtual ~Controller();
-        void refreshArduinoStatus();
-
-        void enableNunchuck();
-        void disableNunchuck();
+        bool processing();
+        bool interrupting(); // when it's an interrupt, game processing should be held.
+        bool refreshArduinoStatus();
+        void respondToArduino(); // sends any queued commands.
+        void toggleNunchuck();
+        void toggleNunchuck(bool enable);
         void setKeyLights(Color color) { setKeyLights(color.r,color.g,color.b); };
         void setKeyLights(int R, int G, int B);
         void setTowerLights(char left, char right);
@@ -72,7 +74,7 @@ namespace arduino {
                 G,Y,R,Z);
         }
         void setTowerLights(bool LR, bool LG, bool LB, bool LZ, bool RR, bool RG, bool RB, bool RZ);
-        enum class Animation {TOWER_LIGHT=1, FLATLINE=2};
+        enum class Animation : char {TOWER_LIGHT='1', FLATLINE='2'};
         void playAnimation(Animation);
     private:
         char* serialPort;

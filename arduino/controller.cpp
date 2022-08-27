@@ -14,6 +14,41 @@
 using namespace arduino;
 using namespace std;
 
+// controller buffer logic
+struct BufferedCommand {
+    string command;
+    bool interrupt;
+    BufferedCommand *next=nullptr;
+} *headCmd,*tailCmd; // start and end of list, respectively
+void queueCommand(string command, bool interrupt=false) {
+    auto bc = new BufferedCommand({command,interrupt});
+    if(headCmd == nullptr) { // and thus tailCmd is nullptr
+        headCmd = tailCmd = bc;
+    }
+    else {
+        tailCmd = tailCmd->next;
+        tailCmd->next = bc;
+    }
+}
+
+bool runningCommand = false, commandInterrupts = false;
+int interrupts=0;
+bool Controller::processing() { return runningCommand; }
+bool Controller::interrupting() { return interrupts > 0; }
+void Controller::respondToArduino() {
+    if(headCmd == nullptr) return;
+    char code = serial.writeString(headCmd->command.c_str());
+    runningCommand = code == 1; // success on 1
+    if(runningCommand) {
+        // pop next command
+        commandInterrupts = headCmd->interrupt;
+        auto next = headCmd->next;
+        delete headCmd;
+        headCmd = next;
+        // todo is last command handled properly?
+    }
+}
+
 Controller::Controller(char serialPort[])
     : serialPort(serialPort)
     , statusCodes(false)
@@ -35,15 +70,27 @@ Controller::~Controller()
 
 }
 
-void Controller::refreshArduinoStatus()
+// now also sends commands after receiving.
+bool Controller::refreshArduinoStatus()
 {
+    // todo wonder if this should be split up.
     unsigned char statusCode = serial.writeString("CT\n");
     char bytes[100];
-    statusCode = serial.readString(bytes, '\n', 100, 100);
+    statusCode = serial.readString(bytes, '\n', 100, EXPECTED_RESPONSE_TIME);
     // fixme should populate the controller with default values if nothing is read.
-    if (statusCode > 0)
+    if (statusCode > 0) {
+        runningCommand = false; // if it responded it's not running a command.
+        if(commandInterrupts) {
+            commandInterrupts = false;
+            interrupts--;
+        }
         decodeInputs(bytes);
+        // send new command if applicable.
+        respondToArduino();
+        return true;
+    }
     else cout << "Communication Error (CT), got" << statusCode << endl;
+    return false;
 }
 
 void Controller::decodeInputs(char* bytes)
@@ -90,16 +137,16 @@ void Controller::decodeInputs(char* bytes)
     // cout<<bytes<<endl;
 }
 
-void Controller::enableNunchuck()
-{
-    nunchuckEnabled = true;
-    char statusCode = serial.writeString("CFNCE\n");
+void Controller::toggleNunchuck() {
+    string command = "CFNC \n";
+    command[4] = 'D' + nunchuckEnabled;
+    nunchuckEnabled = !nunchuckEnabled;
+    queueCommand(command);
 }
 
-void Controller::disableNunchuck()
-{
-    nunchuckEnabled = false;
-    char statusCode = serial.writeString("CFNCD\n");
+void Controller::toggleNunchuck(bool enable) {
+    nunchuckEnabled = !enable;
+    toggleNunchuck();
 }
 
 void Controller::setKeyLights(int R, int G, int B)
@@ -115,13 +162,8 @@ void Controller::setKeyLights(int R, int G, int B)
     if (B < 16)
         buffer<<'0';
     buffer<<hex<<B;
-    buffer>>command[3];
-    buffer>>command[4];
-    buffer>>command[5];
-    buffer>>command[6];
-    buffer>>command[7];
-    buffer>>command[8];
-    char statusCode = serial.writeString(command);
+    for(int i = 3; i < 9; i++) buffer>>command[i];
+    queueCommand(command);
 }
 
 void Controller::setTowerLights(char left, char right)
@@ -165,14 +207,11 @@ void Controller::setTowerLights(bool LR, bool LG, bool LB, bool LZ, bool RR, boo
     buffer<<hex<<tmp;
     buffer>>command[3];
     buffer>>command[4];
-    char statusCode = serial.writeString(command);
+    queueCommand(command);
 }
 
 void Controller::playAnimation(Animation animation)
 {
-    stringstream buffer;
-    char command[4] = {'A', 'N', 0, '\n'};
-    buffer<<to_string((int)animation);
-    buffer>>command[2];
-    char statusCode = serial.writeString(command);
+    // this bricks the arduino until the animation is complete, so we need to wait for it to be complete.
+    queueCommand({'A', 'N', (char)animation, '\n'}, true);
 }

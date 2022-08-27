@@ -243,8 +243,7 @@ bool handleArduinoCommands(SDL_Keysym key, bool enable) {
         }
         // after this point everything only happens if enabled.
         case SDL_SCANCODE_KP_MULTIPLY: if(enable) {
-            if(pc->nunchuckEnabled) pc->disableNunchuck();
-            else pc->enableNunchuck();
+            pc->toggleNunchuck();
             break;
         }
         case SDL_SCANCODE_KP_PLUS: if(enable) {
@@ -513,7 +512,21 @@ void Game::gameLoop()
     {
         prepareScene();
         presentScene();
-        if(pc->connected) pc->refreshArduinoStatus();
+        if(pc->connected) {
+            // this prevents animations from affecting gameplay and also ensures that the arduino actually processes all commands.
+            // todo this makes me think arduino communications should be handled on a separate thread.
+            if(pc->interrupting()) {
+                // hang the game until completed.
+                do {
+                    // wait for response.
+                    // fixme if arduino is somehow disconnected then this'll brick the program. connection is only checked initially.
+                    pc->refreshArduinoStatus();
+                } while(pc->interrupting());
+                getDuration(); // reset duration.
+            } else {
+                pc->refreshArduinoStatus();
+            }
+        }
         processInput();
         if(gameState == GameState::EXIT) break;
         if(gameState == GameState::PLAY) applyGravity();
