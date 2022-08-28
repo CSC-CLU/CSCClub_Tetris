@@ -15,10 +15,9 @@ using namespace arduino;
 using namespace std;
 
 Controller::Controller(char serialPort[])
-{
-    this->serialPort = serialPort;
-    this->statusCodes = DecodeStatusCodes(false);
-    this->serial = serialib();
+    : serialPort(serialPort)
+    , statusCodes(false)
+    , serial() {
     // Connection to serial port
     char statusCode = serial.openDevice(this->serialPort, 57600, SERIAL_DATABITS_8, SERIAL_PARITY_NONE, SERIAL_STOPBITS_1);
 
@@ -142,8 +141,8 @@ void Controller::setTowerLights(char left, char right)
 void Controller::setTowerLights(bool LR, bool LG, bool LB, bool LZ, bool RR, bool RG, bool RB, bool RZ)
 {
     stringstream buffer;
-    char command[10] = {'U', 'L', 'T', 0, 0, 0, 0, 0, 0, '\n'};
-    char tmp = 0;
+    char command[10] = {'U', 'L', 'T', '0', '0', '0', '0', '0', '0', '\n'};
+    int tmp = 0;
     if (LR)
         tmp |= 0b10000000;
     if (LG)

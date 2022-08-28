@@ -8,10 +8,8 @@
 using namespace arduino;
 using namespace std;
 
-DecodeStatusCodes::DecodeStatusCodes() {showSuccess = true;}
-DecodeStatusCodes::DecodeStatusCodes(bool showSuccess)
+DecodeStatusCodes::DecodeStatusCodes(bool showSuccess) : showSuccess(showSuccess)
 {
-    this->showSuccess = showSuccess;
     //mode true: Display success and failure messages
     //mode false: Display only failure messages
 }
