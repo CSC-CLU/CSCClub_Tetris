@@ -79,6 +79,7 @@ namespace arduino {
     private:
         char* serialPort;
         void decodeInputs(char *bytes);
+        void queueCommand(std::string command, bool interrupt=false);
     };
 }
 #endif //ARDUINO_CONTROLLER_H

@@ -20,7 +20,8 @@ struct BufferedCommand {
     bool interrupt;
     BufferedCommand *next=nullptr;
 } *headCmd,*tailCmd; // start and end of list, respectively
-void queueCommand(string command, bool interrupt=false) {
+void Controller::queueCommand(string command, bool interrupt) {
+    if(!connected) return; // the linked list would just get infinitely long.
     auto bc = new BufferedCommand({command,interrupt});
     if(headCmd == nullptr) { // the queue is empty
         headCmd = tailCmd = bc;
