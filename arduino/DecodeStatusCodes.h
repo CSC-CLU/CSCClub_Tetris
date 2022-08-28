@@ -18,9 +18,7 @@
 namespace arduino {
     class DecodeStatusCodes {
     public:
-        DecodeStatusCodes();
-
-        DecodeStatusCodes(bool mode);
+        DecodeStatusCodes(bool debug=true);
 
         ~DecodeStatusCodes();
         bool flushReceiver(char code);

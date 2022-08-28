@@ -15,10 +15,9 @@ using namespace arduino;
 using namespace std;
 
 Controller::Controller(char serialPort[])
-{
-    this->serialPort = serialPort;
-    this->statusCodes = DecodeStatusCodes(false);
-    this->serial = serialib();
+    : serialPort(serialPort)
+    , statusCodes(false)
+    , serial() {
     // Connection to serial port
     char statusCode = serial.openDevice(this->serialPort, 57600, SERIAL_DATABITS_8, SERIAL_PARITY_NONE, SERIAL_STOPBITS_1);
 
