@@ -22,12 +22,12 @@ struct BufferedCommand {
 } *headCmd,*tailCmd; // start and end of list, respectively
 void queueCommand(string command, bool interrupt=false) {
     auto bc = new BufferedCommand({command,interrupt});
-    if(headCmd == nullptr) { // and thus tailCmd is nullptr
+    if(headCmd == nullptr) { // the queue is empty
         headCmd = tailCmd = bc;
     }
     else {
-        tailCmd = tailCmd->next;
-        tailCmd->next = bc;
+        bc->next = tailCmd;
+        tailCmd = bc;
     }
 }
 
