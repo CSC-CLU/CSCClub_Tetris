@@ -122,11 +122,14 @@ bool Game::moveCurShapeDown() {
     return false;
 }
 
+bool isLevelingUp = false;
+
 void Game::incLevel() {
     //std::cout << "level: " << ++level << " (speed = " << DELAY/(time = dropDelay()) << "G/" << dropDelay() << "ms)" << std::endl;
     ++level;
     pc->playAnimation(arduino::Controller::Animation::TOWER_LIGHT);
     toNextLevel = LEVEL_CLEAR;
+    isLevelingUp = true;
 }
 
 // the lowest y value containing a color (in other words the one closest to the top).
@@ -445,7 +448,9 @@ bool Game::clearRow(int y)
         grid[i][y] = Color();
     }
     // ／(^ㅅ^)＼ Increment level if required
-    if(--toNextLevel == 0) incLevel();
+    if(--toNextLevel == 0) {
+        incLevel();
+    }
     return true;
 }
 
@@ -513,6 +518,12 @@ void Game::gameLoop()
     {
         prepareScene();
         presentScene();
+        if(isLevelingUp) {
+            isLevelingUp = false;
+            sleep(2);
+            getDuration();
+
+        }
         if(pc->connected) pc->refreshArduinoStatus();
         processInput();
         if(gameState == GameState::EXIT) break;
